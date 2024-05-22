@@ -153,7 +153,19 @@ void loop() {
     }
 
     if(ctrl::ctrlMode == MANUAL){
-        double slewRateHz = 0.095*hhc.getPotValue()*hhc.getPotValue(); //quadradic curve allows for fine control at low end, while still allowing fast slew at high end
+        double slewRateHz = 0;
+        
+        if (hhc.getPotValue() < 256) {
+            slewRateHz = 10000;
+        } else if (hhc.getPotValue() < 512) {
+            slewRateHz = 20000;
+        } else if (hhc.getPotValue() < 768) {
+            slewRateHz = 35000;
+        } else {
+            slewRateHz = 50000;
+        }
+        
+        // 0.095*hhc.getPotValue()*hhc.getPotValue(); //quadradic curve allows for fine control at low end, while still allowing fast slew at high end
         DisplayMode dispMode = disp.getDisplayMode();
         // digitalWrite(DO_RA_EN,isRaPul);
         // digitalWrite(DO_DEC_EN,isDecPul);
@@ -164,11 +176,11 @@ void loop() {
         }
         if(hhc.getBtnRaPlus() && (dispMode == COORDS || dispMode == SYNC) ){
             if (ctrl::getHoming()) raStp.run(REVERSE, raStp.getMaxFrequency());
-            else raStp.run(REVERSE, slewRateHz/2);
+            else raStp.run(REVERSE, slewRateHz/1.5);
         }
         else if(hhc.getBtnRaMinus()&& (dispMode == COORDS || dispMode == SYNC)){
             if (ctrl::getHoming()) raStp.run(FORWARD, raStp.getMaxFrequency());
-            else raStp.run(FORWARD, slewRateHz/2);
+            else raStp.run(FORWARD, slewRateHz/1.5);
         }
         else if(ctrl::trkMode == TRACK){
             raStp.run(FORWARD, ctrl::trackRateHz);

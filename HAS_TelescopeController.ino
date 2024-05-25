@@ -50,10 +50,8 @@ void setup() {
     // Serial1.begin(9600);
     wdt_enable(WDTO_2S); // Enable Watchdog Timer, 8s
 
-
     raStp.init(DO_RA_STP_DIR, PWM_RA_STP_PUL, maxFreqRa, false, raCal);
-    decStp.init(DO_DEC_STP_DIR, PWM_DEC_STP_PUL, maxFreqDec, true, decCal);
-
+    decStp.init(DO_DEC_STP_DIR, PWM_DEC_STP_PUL, maxFreqDec, true, decCal)
 }
 
 /// @brief Main loop
@@ -154,6 +152,16 @@ void loop() {
 
     if(ctrl::ctrlMode == MANUAL){
         double slewRateHz = 0;
+
+        double slewRateHzRA = 0;
+        double slewRateHzDEC = 0;
+        bool rampingActiveRA = false;
+        bool rampingActiveDEC = false;
+        int rampingCountMax = 500;
+        int rampingCounterRA = rampingCountMax;
+        int rampingCounterDEC = rampingCountMax;
+        bool rampingTriggerRA = false;
+        bool rampingTriggerDEC = false;
         
         if (hhc.getPotValue() < 256) {
             slewRateHz = 10000;
@@ -174,13 +182,47 @@ void loop() {
             ctrl::moveHome(raStp,decStp);
             tone(PWM_BZR,NOTE_C6,BEEP_TIME);
         }
+
+        // Set ramping rates, if required.
+        if(hcc.getBtnRaPlusRise() || hcc.getBtnRaMinusRise()) {
+            rampingTriggerRA = true;
+        }
+        if(hcc.getBtnDecPlusRise() || hcc.getBtnDecMinusRise()) {
+            rampingTriggerDEC = true;
+        }
+        if(rampingTriggerRA) {
+            rampingActiveRA = true;
+            rampingCounterRA = rampingCountMax;
+            rampingTriggerRA = false;
+        }
+        if(rampingTriggerDEC) {
+            rampingActiveDEC = true;
+            rampingCounterDEC = rampingCountMax;
+            rampingTriggerDEC = false;
+        }
+        if(rampingActiveRA && rampingCounterRA > 1) {
+            slewRateHzRA = (slewRateHz / rampingCountMax) * rampingCounterRA;
+            rampingCounterRA = rampingCounterRA - 1;
+        } else if(rampingActiveRA) {
+            rampingActiveRA = false;
+            slewRateHzRA = slewRateHz;
+        }
+        if(rampingActiveDEC && rampingCounterDEC > 1) {
+            slewRateHzDEC = (slewRateHz / rampingCountMax) * rampingCounterDEC;
+            rampingCounterDEC = rampingCounterDEC - 1;
+        } else if(rampingActiveDEC) {
+            rampingActiveDEC = false;
+            slewRateHzDEC = slewRateHz;
+        }
+
+
         if(hhc.getBtnRaPlus() && (dispMode == COORDS || dispMode == SYNC) ){
             if (ctrl::getHoming()) raStp.run(REVERSE, raStp.getMaxFrequency());
-            else raStp.run(REVERSE, slewRateHz/1.5);
+            else raStp.run(REVERSE, slewRateHzRA/1.5);
         }
         else if(hhc.getBtnRaMinus()&& (dispMode == COORDS || dispMode == SYNC)){
             if (ctrl::getHoming()) raStp.run(FORWARD, raStp.getMaxFrequency());
-            else raStp.run(FORWARD, slewRateHz/1.5);
+            else raStp.run(FORWARD, slewRateHzRA/1.5);
         }
         else if(ctrl::trkMode == TRACK){
             raStp.run(FORWARD, ctrl::trackRateHz);
@@ -191,11 +233,11 @@ void loop() {
 
         if(hhc.getBtnDecPlus() && (dispMode == COORDS || dispMode == SYNC)){
             if (ctrl::getHoming()) decStp.run(FORWARD, decStp.getMaxFrequency());
-            else decStp.run(FORWARD, slewRateHz);
+            else decStp.run(FORWARD, slewRateHzDEC);
         }
         else if(hhc.getBtnDecMinus()&& (dispMode == COORDS || dispMode == SYNC)){
             // if (ctrl::getHoming()) decStp.run(REVERSE, decStp.getMaxFrequency());
-            decStp.run(REVERSE, slewRateHz);
+            decStp.run(REVERSE, slewRateHzDEC);
         }
         else if (!ctrl::getHoming()){
             decStp.stop();

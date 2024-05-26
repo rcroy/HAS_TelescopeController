@@ -51,7 +51,7 @@ void setup() {
     wdt_enable(WDTO_2S); // Enable Watchdog Timer, 8s
 
     raStp.init(DO_RA_STP_DIR, PWM_RA_STP_PUL, maxFreqRa, false, raCal);
-    decStp.init(DO_DEC_STP_DIR, PWM_DEC_STP_PUL, maxFreqDec, true, decCal)
+    decStp.init(DO_DEC_STP_DIR, PWM_DEC_STP_PUL, maxFreqDec, true, decCal);
 }
 
 /// @brief Main loop
@@ -65,6 +65,16 @@ void loop() {
     disp.show(hhc,pos::currentLocation.getPosition(SKY),ctrl::getHoming());
     ctrl::ctrlMode = (disp.getAutoManState()) ? AUTO : MANUAL;
     ctrl::trkMode = (disp.getTrackState()) ? TRACK : NO_TRACK;
+
+    double slewRateHzRA = 0;
+    double slewRateHzDEC = 0;
+    bool rampingActiveRA = false;
+    bool rampingActiveDEC = false;
+    int rampingCountMax = 500;
+    int rampingCounterRA = rampingCountMax;
+    int rampingCounterDEC = rampingCountMax;
+    bool rampingTriggerRA = false;
+    bool rampingTriggerDEC = false;
 
     if(ctrl::trkMode == TRACK && ctrl::getScopeStatus(raStp, decStp) == IDLE){
             raStp.run(FORWARD, ctrl::trackRateHz);
@@ -153,15 +163,8 @@ void loop() {
     if(ctrl::ctrlMode == MANUAL){
         double slewRateHz = 0;
 
-        double slewRateHzRA = 0;
-        double slewRateHzDEC = 0;
-        bool rampingActiveRA = false;
-        bool rampingActiveDEC = false;
-        int rampingCountMax = 500;
-        int rampingCounterRA = rampingCountMax;
-        int rampingCounterDEC = rampingCountMax;
-        bool rampingTriggerRA = false;
-        bool rampingTriggerDEC = false;
+
+
         
         if (hhc.getPotValue() < 256) {
             slewRateHz = 10000;
@@ -184,11 +187,18 @@ void loop() {
         }
 
         // Set ramping rates, if required.
-        if(hcc.getBtnRaPlusRise() || hcc.getBtnRaMinusRise()) {
+        if(hhc.getBtnRaPlusRise() || hhc.getBtnRaMinusRise()) {
             rampingTriggerRA = true;
+            Serial.println("----------------");
+            Serial.println("RA Rise");
+            Serial.println("----------------");
+
         }
-        if(hcc.getBtnDecPlusRise() || hcc.getBtnDecMinusRise()) {
+        if(hhc.getBtnDecPlusRise() || hhc.getBtnDecMinusRise()) {
             rampingTriggerDEC = true;
+            Serial.println("----------------");
+            Serial.println("DEC Rise");
+            Serial.println("----------------");
         }
         if(rampingTriggerRA) {
             rampingActiveRA = true;
@@ -244,15 +254,28 @@ void loop() {
         }
     }
     
-    // static unsigned long prevMillis = millis();
-    // if(millis()-prevMillis>=500){
-    //     // Serial.println("AUTO: " + String(disp.getAutoManState()));
-    //     // Serial.println("TRACK: " + String(disp.getTrackState()));
-    //     // Serial.println("RUN_RA: " + String(raStp.getEnabled()));
-    //     // Serial.println("RUN_DEC: " + String(decStp.getEnabled()));
-    //     Serial.println("RUN_DEC: " + String(hhc.getBtnDecMinus()));
-    //     prevMillis = millis();
-    // }
+    static unsigned long prevMillis = millis();
+    if(millis()-prevMillis>=1000){
+        // Serial.println("AUTO: " + String(disp.getAutoManState()));
+        // Serial.println("TRACK: " + String(disp.getTrackState()));
+        // Serial.println("RUN_RA: " + String(raStp.getEnabled()));
+        // Serial.println("RUN_DEC: " + String(decStp.getEnabled()));
+        // Serial.println("RUN_DEC: " + String(hhc.getBtnDecMinus()));
+        Serial.println("slewRateHzRA: " + String(slewRateHzRA));
+        Serial.println("slewRateHzDEC: " + String(slewRateHzDEC));
+        
+        Serial.println("rampingActiveRA: " + String(rampingActiveRA));
+        Serial.println("rampingActiveDEC: " + String(rampingActiveDEC));
+        Serial.println("rampingTriggerRA: " + String(rampingTriggerRA));
+        Serial.println("rampingTriggerDEC: " + String(rampingTriggerDEC));
+        Serial.println("rampingCounterRA: " + String(rampingCounterRA));
+        Serial.println("rampingCounterDEC: " + String(rampingCounterDEC));
+        Serial.println("rampingCounterDEC: " + String(rampingCounterDEC));
+        
+        Serial.println("----------------");
+        
+        prevMillis = millis();
+    }
 
     // Serial.println(disp.getAutoManState());
     ctrl::homeStop(raStp,decStp);

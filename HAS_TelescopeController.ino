@@ -66,17 +66,31 @@ void loop() {
     ctrl::ctrlMode = (disp.getAutoManState()) ? AUTO : MANUAL;
     ctrl::trkMode = (disp.getTrackState()) ? TRACK : NO_TRACK;
 
-    double slewRateHzRA = 0;
-    double slewRateHzDEC = 0;
-    bool rampingActiveRA = false;
-    bool rampingActiveDEC = false;
     long int rampingCountMax = 500000;
-    long int rampingCounterRA = 0;
-    long int rampingCounterDEC = 0;
-    bool rampingTriggerRA = false;
-    bool rampingTriggerDECPlus = false;
+
+    // DEC Plus ramping variables
     bool rampingActiveDECPlus = false;
-    bool rampingTriggerDEC = false;
+    bool rampingTriggerDECPlus = false;
+    long int rampingCounterDECPlus = 0;
+    
+    double slewRateHzDEC = 0;
+
+    // DEC Minus ramping variables
+    bool rampingActiveDECMinus = false;
+    bool rampingTriggerDECMinus = false;
+    long int rampingCounterDECMinus = 0;
+    
+    // RA Plus ramping variables
+    bool rampingActiveRAPlus = false;
+    bool rampingTriggerRAPlus = false;
+    long int rampingCounterRAPlus = 0;
+    
+    double slewRateHzRA = 0;
+
+    // DEC Minus ramping variables
+    bool rampingActiveRAMinus = false;
+    bool rampingTriggerRAMinus = false;
+    long int rampingCounterRAMinus = 0;
 
     if(ctrl::trkMode == TRACK && ctrl::getScopeStatus(raStp, decStp) == IDLE){
             raStp.run(FORWARD, ctrl::trackRateHz);
@@ -164,6 +178,7 @@ void loop() {
 
     if(ctrl::ctrlMode == MANUAL){
         double slewRateHz = 50000;
+        double maxSlewRateHz = 50000;
 
         if (hhc.getPotValue() < 256) {
             slewRateHz = 10000;
@@ -186,58 +201,75 @@ void loop() {
         }
 
         // Set ramping rates, if required.
-        if(hhc.getBtnRaPlusRise() || hhc.getBtnRaMinusRise()) {
-            rampingTriggerRA = true;
-            Serial.println("----------------");
-            Serial.println("RA Rise");
-            Serial.println("----------------");
 
-        }
+        // DEC Plus ramping
         if(hhc.getBtnDecPlusRise()) {
             rampingActiveDECPlus = true;
-            Serial.println("----------------");
-            Serial.println("DEC Plus Rise");
-            Serial.println(!hhc.getBtnDecPlus());
-            Serial.println("rampingTriggerDEC: " + String(rampingTriggerDEC));
-            Serial.println("----------------");
-            
         }
-        if(hhc.getBtnDecMinusRise()) {
-            rampingTriggerDEC = true;
-            Serial.println("----------------");
-            Serial.println("DEC Minus Rise");
-            Serial.println("----------------");
-        }
-        if(rampingTriggerRA) {
-      
-            rampingActiveRA = true;
-            rampingCounterRA = rampingCountMax;
-            rampingTriggerRA = false;
-        }
-        if(rampingTriggerDECPlus) {
-            Serial.println("*** Ramping Trigger DEC ***");
-            rampingActiveDEC = true;
-            rampingCounterDEC = rampingCountMax;
+        if(rampingTriggerDECPlus && !rampingActiveDECPlus) {
+            rampingActiveDECPlus = true;
             rampingTriggerDECPlus = false;
-            Serial.println("rampingCounterDEC: " + String(rampingCounterDEC));
-            Serial.println("rampingActiveDEC: " + String(rampingActiveDEC));
-            Serial.println("----------------");
+            rampingCounterDECPlus = rampingCountMax;
         }
-        if(rampingActiveRA and rampingCounterRA > 1) {
-            slewRateHzRA = (slewRateHz / rampingCountMax) * rampingCounterRA;
-            rampingCounterRA = rampingCounterRA - 1;
-        } else if(rampingActiveRA) {
-            rampingActiveRA = false;
-            slewRateHzRA = slewRateHz;
-        }
-        if(rampingActiveDECPlus and (rampingCounterDEC > 1)) {
-            Serial.println("*** Counting Down ***");
-            slewRateHzDEC = (slewRateHz / rampingCountMax) * rampingCounterDEC;
-            rampingCounterDEC = rampingCounterDEC - 1;
+        if(rampingActiveDECPlus && (rampingCounterDECPlus > 1)) {
+            slewRateHzDEC = (maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterDECPlus);
+            rampingCounterDECPlus = rampingCounterDECPlus - 1;
         } else if(rampingActiveDECPlus) {
             rampingActiveDECPlus = false;
-            slewRateHzDEC = slewRateHz;
+            slewRateHzDEC = maxSlewRateHz;
         }
+
+        // DEC Minus ramping
+        if(hhc.getBtnDecMinusRise()) {
+            rampingActiveDECMinus = true;
+        }
+        if(rampingTriggerDECMinus && !rampingActiveDECMinus) {
+            rampingActiveDECMinus = true;
+            rampingTriggerDECMinus = false;
+            rampingCounterDECMinus = rampingCountMax;
+        }
+        if(rampingActiveDECMinus && (rampingCounterDECMinus > 1)) {
+            slewRateHzDEC = (maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterDECMinus);
+            rampingCounterDECMinus = rampingCounterDECMinus - 1;
+        } else if(rampingActiveDECMinus) {
+            rampingActiveDECMinus = false;
+            slewRateHzDEC = maxSlewRateHz;
+        }
+
+       // RA Plus ramping
+        if(hhc.getBtnRAPlusRise()) {
+            rampingActiveRAPlus = true;
+        }
+        if(rampingTriggerRAPlus && !rampingActiveRAPlus) {
+            rampingActiveRAPlus = true;
+            rampingTriggerRAPlus = false;
+            rampingCounterRAPlus = rampingCountMax;
+        }
+        if(rampingActiveRAPlus && (rampingCounterRAPlus > 1)) {
+            slewRateHzRA = (maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterRAPlus);
+            rampingCounterRAPlus = rampingCounterRAPlus - 1;
+        } else if(rampingActiveRAPlus) {
+            rampingActiveRAPlus = false;
+            slewRateHzRA = maxSlewRateHz;
+        }
+
+        // RA Minus ramping
+        if(hhc.getBtnRAMinusRise()) {
+            rampingActiveRAMinus = true;
+        }
+        if(rampingTriggerRAMinus && !rampingActiveRAMinus) {
+            rampingActiveRAMinus = true;
+            rampingTriggerRAMinus = false;
+            rampingCounterRAMinus = rampingCountMax;
+        }
+        if(rampingActiveRAMinus && (rampingCounterRAMinus > 1)) {
+            slewRateHzRA = (maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterRAMinus);
+            rampingCounterRAMinus = rampingCounterRAMinus - 1;
+        } else if(rampingActiveRAMinus) {
+            rampingActiveRAMinus = false;
+            slewRateHzRA = maxSlewRateHz;
+        }
+        // ramping code ends
 
         if(hhc.getBtnRaPlus() && (dispMode == COORDS || dispMode == SYNC) ){
             if (ctrl::getHoming()) raStp.run(REVERSE, raStp.getMaxFrequency());

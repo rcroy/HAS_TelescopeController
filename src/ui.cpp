@@ -38,13 +38,13 @@ namespace ui{
         digitalWrite(addrB, LOW);
         digitalWrite(addrC, LOW);
         delayMicroseconds(debounceMicros);
-        btnRaPlus = !digitalRead(pinSig);
+        btnRaPlus = digitalRead(pinSig);
         delayMicroseconds(debounceMicros);
         digitalWrite(addrA, HIGH);
         // digitalWrite(addrB, LOW);
         // digitalWrite(addrC, LOW);
         delayMicroseconds(debounceMicros);
-        btnRaMinus = !digitalRead(pinSig);
+        btnRaMinus = digitalRead(pinSig);
         delayMicroseconds(debounceMicros);
         digitalWrite(addrA, LOW);
         digitalWrite(addrB, HIGH);
@@ -56,7 +56,7 @@ namespace ui{
         // digitalWrite(addrB, HIGH);
         // digitalWrite(addrC, LOW);
         delayMicroseconds(debounceMicros);
-        btnDecMinus = !digitalRead(pinSig);
+        btnDecMinus = digitalRead(pinSig);
         delayMicroseconds(debounceMicros);
         digitalWrite(addrA, LOW);
         digitalWrite(addrB, LOW);
@@ -99,6 +99,7 @@ namespace ui{
         else btnRaMinusEdgeR = false;
         if (!btnRaPlus & prevBtnRaPlus) btnRaPlusEdgeR = true;
         else btnRaPlusEdgeR = false;
+        
         if (!btnDecMinus & prevBtnDecMinus) btnDecMinusEdgeR = true;
         else btnDecMinusEdgeR = false;
 

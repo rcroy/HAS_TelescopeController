@@ -95,6 +95,14 @@ void loop() {
     static bool rampingTriggerRAMinus = false;
     static long int rampingCounterRAMinus = 0;
 
+    static bool rampingActive;
+
+    if (rampingActiveDECPlus || rampingActiveDECMinus || rampingActiveRAPlus || rampingActiveRAMinus) {
+        rampingActive = true;
+    } else {
+        rampingActive = false;
+    }
+
     //Serial.println("Going into 96: CounterDECPlus: " + String(rampingCounterDECPlus)+", ActiveDECPlus: " + String(rampingActiveDECPlus)) ;
 
     if(ctrl::trkMode == TRACK && ctrl::getScopeStatus(raStp, decStp) == IDLE){
@@ -182,17 +190,17 @@ void loop() {
     }
 
     if(ctrl::ctrlMode == MANUAL){
-        double slewRateHz = 50000;
+        //double slewRateHz = 50000;
         double maxSlewRateHz = 50000;
 
-        if (hhc.getPotValue() < 256) {
-            slewRateHz = 10000;
-        } else if (hhc.getPotValue() < 512) {
-            slewRateHz = 20000;
-        } else if (hhc.getPotValue() < 768) {
-            slewRateHz = 35000;
-        } else {
-            slewRateHz = 50000;
+        if (hhc.getPotValue() < 256 && !rampingActive) {
+            maxSlewRateHz = 10000;
+        } else if (hhc.getPotValue() < 512 && !rampingActive) {
+            maxSlewRateHz = 20000;
+        } else if (hhc.getPotValue() < 768 && !rampingActive) {
+            maxSlewRateHz = 35000;
+        } else if (!rampingActive) {
+            maxSlewRateHz = maxSlewRateHz;
         }
         
         // 0.095*hhc.getPotValue()*hhc.getPotValue(); //quadradic curve allows for fine control at low end, while still allowing fast slew at high end

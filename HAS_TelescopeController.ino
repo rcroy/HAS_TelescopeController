@@ -52,9 +52,6 @@ void setup() {
 
     raStp.init(DO_RA_STP_DIR, PWM_RA_STP_PUL, maxFreqRa, false, raCal);
     decStp.init(DO_DEC_STP_DIR, PWM_DEC_STP_PUL, maxFreqDec, true, decCal);
-
-
-
 }
 
 /// @brief Main loop
@@ -69,6 +66,10 @@ void loop() {
     ctrl::ctrlMode = (disp.getAutoManState()) ? AUTO : MANUAL;
     ctrl::trkMode = (disp.getTrackState()) ? TRACK : NO_TRACK;
 
+
+    /*
+       RAMPING CODE
+    */
     static int rampingCountMax = 30;
 
     // DEC Plus ramping variables
@@ -102,6 +103,8 @@ void loop() {
     } else {
         rampingActive = false;
     }
+
+    // RAMPING CODE ends
 
     //Serial.println("Going into 96: CounterDECPlus: " + String(rampingCounterDECPlus)+", ActiveDECPlus: " + String(rampingActiveDECPlus)) ;
 
@@ -193,13 +196,13 @@ void loop() {
         //double slewRateHz = 50000;
         double maxSlewRateHz = 50000;
 
-        if (hhc.getPotValue() < 256 && !rampingActive) {
+        if (hhc.getPotValue() < 256 ) {
             maxSlewRateHz = 10000;
-        } else if (hhc.getPotValue() < 512 && !rampingActive) {
+        } else if (hhc.getPotValue() < 512 ) {
             maxSlewRateHz = 20000;
-        } else if (hhc.getPotValue() < 768 && !rampingActive) {
+        } else if (hhc.getPotValue() < 768 ) {
             maxSlewRateHz = 35000;
-        } else if (!rampingActive) {
+        } else {
             maxSlewRateHz = maxSlewRateHz;
         }
         
@@ -301,6 +304,7 @@ void loop() {
         //Serial.println("Post RA+: RampingActiveDECPlus: " + String(rampingActiveDECPlus)+", Ramping ends");
         // ramping code ends
 
+        // Manual move button press code
         if(!hhc.getBtnRaPlus() && (dispMode == COORDS || dispMode == SYNC) ){
             if (ctrl::getHoming()) raStp.run(REVERSE, raStp.getMaxFrequency());
             else raStp.run(REVERSE, slewRateHzRA/1.5);
@@ -327,6 +331,7 @@ void loop() {
         else if (!ctrl::getHoming()){
             decStp.stop();
         }
+        // END Manual move button press code
     }
     //Serial.println("rampingCounterDECPlus: " + String(rampingCounterDECPlus)+", rampingActiveDECPlus: " + String(rampingActiveDECPlus)) ;
     //Serial.println("-----------------------------");

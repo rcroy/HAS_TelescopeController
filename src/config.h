@@ -8,8 +8,8 @@
 
 // #define <RXD0>       0
 // #define <TXD0>       1
-#define DI_DEC_LIM_LO   2
-#define DI_DEC_LIM_HI   3
+#define DI_DEC_LIM_HI   2 // Is this still high, really?
+#define DI_DEC_LIM_LO   3
 #define DO_DEC_STP_DIR  4
 #define PWM_DEC_STP_PUL 5
 #define PWM_RA_STP_PUL  6

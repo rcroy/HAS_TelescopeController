@@ -51,7 +51,10 @@ namespace io{
     }
 
     bool isHome(){
-        if(digitalRead(DI_DEC_LIM_LO) && !digitalRead(DI_RA_LIM_IDX)) return true;
+        // The following line does not match the original logic. 
+        // The re-wiring has changed the input signals.
+        // This code does give the correct DEC HOME, but the RA link is wrong.
+        if(digitalRead(DI_DEC_LIM_LO) && digitalRead(DI_RA_LIM_IDX)) return true; // second test was NOT
         else return false;
     }
 

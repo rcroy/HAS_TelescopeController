@@ -93,7 +93,7 @@ namespace ctrl {
     void homeStop(io::Stepper& ra, io::Stepper& dec){
         if(isHoming){
             if (digitalRead(DI_DEC_LIM_LO)) dec.stop();
-            if (!digitalRead(DI_RA_LIM_IDX)) ra.stop();
+            if (digitalRead(DI_RA_LIM_IDX)) ra.stop();
             if(digitalRead(DI_DEC_LIM_LO) && !digitalRead(DI_RA_LIM_IDX)) isHoming = false;
         }
     

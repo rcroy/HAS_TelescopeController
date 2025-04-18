@@ -337,7 +337,7 @@ void loop() {
     /*
     static unsigned long prevMillis = millis();
     if(millis()-prevMillis>=1500){
-        Serial.println("rampingCounterDECPlus: " + String(rampingCounterDECPlus)+", rampingActiveDECPlus: " + String(rampingActiveDECPlus)) ;
+        //Serial.println("rampingCounterDECPlus: " + String(rampingCounterDECPlus)+", rampingActiveDECPlus: " + String(rampingActiveDECPlus)) ;
         //Serial.println("rampingActiveDECPlus: " + String(rampingActiveDECPlus));
         //Serial.println("rampingCounterRA: " + String(rampingCounterRA));
         //Serial.println("rampingCounterDEC: " + String(rampingCounterDEC));
@@ -345,6 +345,9 @@ void loop() {
         //Serial.println("rampingActiveDEC: " + String(rampingActiveDEC));
         //Serial.println("slewRateHzRA: " + String(slewRateHzRA));
         //Serial.println("slewRateHzDEC: " + String(slewRateHzDEC));
+        //Serial.println("DI_RA_LIM_IDX: " + String(digitalRead(DI_RA_LIM_IDX)));
+        //Serial.println("DO_RA_STP_DIR: " + String(digitalRead(DO_RA_STP_DIR)));
+        
         Serial.println("----------------");
         
         prevMillis = millis();

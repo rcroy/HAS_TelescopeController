@@ -39,11 +39,11 @@ namespace io{
     /// @brief stop the declination motor if a limit switch is triggered.
     /// @param dec the declination stepper motor.
     void limitStop(Stepper& dec){
-        if(digitalRead(DI_DEC_LIM_LO) && dec.getDirection() == REVERSE){
+        if(digitalRead(DI_DEC_LIM_LO) && dec.getDirection() == FORWARD){
             dec.stop();
             // g_decLimLo = false;
         }
-        if(digitalRead(DI_DEC_LIM_HI) && dec.getDirection() == FORWARD){
+        if(digitalRead(DI_DEC_LIM_HI) && dec.getDirection() == REVERSE){
             dec.stop();
             // g_decLimHi = false;
         }
@@ -59,8 +59,8 @@ namespace io{
     }
 
     bool decLimCheck(int dir){
-        if(dir == REVERSE && digitalRead(DI_DEC_LIM_LO)) return true;
-        if(dir == FORWARD && digitalRead(DI_DEC_LIM_HI)) return true;
+        if(dir == FORWARD && digitalRead(DI_DEC_LIM_LO)) return true;
+        if(dir == REVERSE && digitalRead(DI_DEC_LIM_HI)) return true;
         return false;
     }
 }

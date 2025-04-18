@@ -106,8 +106,6 @@ void loop() {
 
     // RAMPING CODE ends
 
-    //Serial.println("Going into 96: CounterDECPlus: " + String(rampingCounterDECPlus)+", ActiveDECPlus: " + String(rampingActiveDECPlus)) ;
-
     if(ctrl::trkMode == TRACK && ctrl::getScopeStatus(raStp, decStp) == IDLE){
             raStp.run(FORWARD, ctrl::trackRateHz);
     }
@@ -206,10 +204,7 @@ void loop() {
             maxSlewRateHz = maxSlewRateHz;
         }
         
-        // 0.095*hhc.getPotValue()*hhc.getPotValue(); //quadradic curve allows for fine control at low end, while still allowing fast slew at high end
         DisplayMode dispMode = disp.getDisplayMode();
-        // digitalWrite(DO_RA_EN,isRaPul);
-        // digitalWrite(DO_DEC_EN,isDecPul);
         if(ctrl::getHoming())disp.setTrackState(false);
         if(hhc.getBtnGoToRise()) {
             ctrl::moveHome(raStp,decStp);
@@ -345,8 +340,6 @@ void loop() {
         //Serial.println("rampingActiveDEC: " + String(rampingActiveDEC));
         //Serial.println("slewRateHzRA: " + String(slewRateHzRA));
         //Serial.println("slewRateHzDEC: " + String(slewRateHzDEC));
-        //Serial.println("DI_RA_LIM_IDX: " + String(digitalRead(DI_RA_LIM_IDX)));
-        //Serial.println("DO_RA_STP_DIR: " + String(digitalRead(DO_RA_STP_DIR)));
         
         Serial.println("----------------");
         

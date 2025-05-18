@@ -47,7 +47,6 @@ void setup() {
     hhc.initButtons(AI_POT_SPEED, DI_MUX_SIG, DO_MUX_ADDR_A, DO_MUX_ADDR_B, DO_MUX_ADDR_C);
     disp.init();
     Serial.begin(9600);
-    // Serial1.begin(9600);
     wdt_enable(WDTO_2S); // Enable Watchdog Timer, 8s
 
     raStp.init(DO_RA_STP_DIR, PWM_RA_STP_PUL, maxFreqRa, false, raCal);
@@ -316,12 +315,12 @@ void loop() {
         }
 
         if(!hhc.getBtnDecPlus() && (dispMode == COORDS || dispMode == SYNC)){
-            if (ctrl::getHoming()) decStp.run(FORWARD, decStp.getMaxFrequency());
-            else decStp.run(FORWARD, slewRateHzDEC);
+            //  if (ctrl::getHoming()) decStp.run(FORWARD, decStp.getMaxFrequency());
+            decStp.run(FORWARD, slewRateHzDEC);
         }
         else if(!hhc.getBtnDecMinus()&& (dispMode == COORDS || dispMode == SYNC)){
-            // if (ctrl::getHoming()) decStp.run(REVERSE, decStp.getMaxFrequency());
-            decStp.run(REVERSE, slewRateHzDEC);
+            if (ctrl::getHoming()) decStp.run(REVERSE, decStp.getMaxFrequency());
+            else decStp.run(REVERSE, slewRateHzDEC);
         }
         else if (!ctrl::getHoming()){
             decStp.stop();
@@ -338,8 +337,9 @@ void loop() {
         //Serial.println("rampingCounterDEC: " + String(rampingCounterDEC));
         //Serial.println("rampingActiveRA: " + String(rampingActiveRA));
         //Serial.println("rampingActiveDEC: " + String(rampingActiveDEC));
-        //Serial.println("slewRateHzRA: " + String(slewRateHzRA));
-        //Serial.println("slewRateHzDEC: " + String(slewRateHzDEC));
+        Serial.println("slewRateHzRA: " + String(slewRateHzRA));
+        Serial.println("slewRateHzDEC: " + String(slewRateHzDEC));
+        Serial.println("RampingActive_DEC+,DEC-,RA+,RA-: " + String(rampingActiveDECPlus) + String(rampingActiveDECMinus) + String(rampingActiveRAPlus) + String(rampingActiveRAMinus));
         
         Serial.println("----------------");
         

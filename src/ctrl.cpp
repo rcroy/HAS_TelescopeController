@@ -84,10 +84,11 @@ namespace ctrl {
     }
 
     void moveHome(io::Stepper& ra, io::Stepper& dec){
-        if (ra.getPulseCount() == 0) return;
+        //Serial.println("ra.getPulseCount: " + String(ra.getPulseCount()));
+        // if (ra.getPulseCount() == 0) return;
         // direction dir = (ra.getPulseCount() > 0) ? FORWARD : REVERSE;
         dec.setFrequency(dec.getMaxFrequency());
-        dec.run(REVERSE);
+        dec.run(FORWARD);
         isHoming = true;
     }
     void homeStop(io::Stepper& ra, io::Stepper& dec){

@@ -1,8 +1,6 @@
 #include "encoder.h"
 #include "enums.h"
 
-
-
 namespace io{
 
     Encoder::Encoder(int pinA, int pinB, int maxEdges){

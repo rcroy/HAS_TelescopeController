@@ -24,4 +24,9 @@ enum direction{
   REVERSE
 };
 
+enum DECdirection {
+  DREVERSE,
+  DFORWARD
+};
+
 #endif

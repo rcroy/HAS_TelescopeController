@@ -38,25 +38,25 @@ namespace ui{
         digitalWrite(addrB, LOW);
         digitalWrite(addrC, LOW);
         delayMicroseconds(debounceMicros);
-        btnRaPlus = !digitalRead(pinSig);
+        btnRaPlus = digitalRead(pinSig);
         delayMicroseconds(debounceMicros);
         digitalWrite(addrA, HIGH);
         // digitalWrite(addrB, LOW);
         // digitalWrite(addrC, LOW);
         delayMicroseconds(debounceMicros);
-        btnRaMinus = !digitalRead(pinSig);
+        btnRaMinus = digitalRead(pinSig);
         delayMicroseconds(debounceMicros);
         digitalWrite(addrA, LOW);
         digitalWrite(addrB, HIGH);
         // digitalWrite(addrC, LOW);
         delayMicroseconds(debounceMicros);
-        btnDecPlus = !digitalRead(pinSig);
+        btnDecPlus = digitalRead(pinSig);
         delayMicroseconds(debounceMicros);
         digitalWrite(addrA, HIGH);
         // digitalWrite(addrB, HIGH);
         // digitalWrite(addrC, LOW);
         delayMicroseconds(debounceMicros);
-        btnDecMinus = !digitalRead(pinSig);
+        btnDecMinus = digitalRead(pinSig);
         delayMicroseconds(debounceMicros);
         digitalWrite(addrA, LOW);
         digitalWrite(addrB, LOW);
@@ -95,21 +95,24 @@ namespace ui{
         static bool prevBtnGoTo = false;
         static bool prevBtnTrack = false;
 
-        if (btnRaMinus & !prevBtnRaMinus) btnRaMinusEdgeR = true;
+        if (!btnRaMinus & prevBtnRaMinus) btnRaMinusEdgeR = true;
         else btnRaMinusEdgeR = false;
         if (!btnRaPlus & prevBtnRaPlus) btnRaPlusEdgeR = true;
         else btnRaPlusEdgeR = false;
-        if (btnDecMinus & !prevBtnDecMinus) btnDecMinusEdgeR = true;
+        
+        if (!btnDecMinus & prevBtnDecMinus) btnDecMinusEdgeR = true;
         else btnDecMinusEdgeR = false;
+
         if (!btnDecPlus & prevBtnDecPlus) btnDecPlusEdgeR = true;
         else btnDecPlusEdgeR = false;
-        if (btnMenu & !prevBtnMenu) btnMenuEdgeR = true;
+
+        if (!btnMenu & prevBtnMenu) btnMenuEdgeR = true;
         else btnMenuEdgeR = false;
-        if (btnAutoMan & !prevBtnAutoMan) btnAutoManEdgeR = true;
+        if (!btnAutoMan & prevBtnAutoMan) btnAutoManEdgeR = true;
         else btnAutoManEdgeR = false;
-        if (btnGoTo & !prevBtnGoTo) btnGoToEdgeR = true;
+        if (!btnGoTo & prevBtnGoTo) btnGoToEdgeR = true;
         else btnGoToEdgeR = false;
-        if (btnTrack & !prevBtnTrack) btnTrackEdgeR = true;
+        if (!btnTrack & prevBtnTrack) btnTrackEdgeR = true;
         else btnTrackEdgeR = false;
 
         prevBtnRaMinus = btnRaMinus;

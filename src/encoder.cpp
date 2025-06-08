@@ -63,36 +63,39 @@ namespace io{
     }
     
 };
-////////////////////////////////////////////////////////////////////////////////
-    // io::Encoder enc(3, 2, 2048);
 
-    // void setup()
-    //  {
-    //     Serial.begin(9600);
-    //     pinMode(2, INPUT_PULLUP);
-    //     pinMode(3, INPUT_PULLUP);
-    //  }
+/*
+    io::Encoder enc(3, 2, 2048);
 
-    // void loop()
-    //  {
-    //     static unsigned long currentMillis;
-    //     static unsigned long prevMillis = 0;
-    //     currentMillis = millis();
-    //     enc.update();
-    //     String message = "Pulse:" +
-    //                     String(enc.getStepCount()) +
-    //                     " Edge: " +
-    //                     String(enc.getEdgeCount()) +
-    //                     " Rev: " +
-    //                     String(enc.getRevCount()) +
-    //                     " Dir: " +
-    //                     String(enc.getDirection() )+
-    //                     " Deg: " +
-    //                     String(enc.getDegrees() ) +
-    //                     "\r";
-    //     if(currentMillis - prevMillis >= 1000){
+    void setup()
+     {
+        Serial.begin(9600);
+        pinMode(2, INPUT_PULLUP);
+        pinMode(3, INPUT_PULLUP);
+     }
 
-    //        Serial.print(message);
-    //         prevMillis = currentMillis;
-    //     }
-    //  }
+    void loop()
+     {
+        static unsigned long currentMillis;
+        static unsigned long prevMillis = 0;
+        currentMillis = millis();
+        enc.update();
+        String message = "Pulse:" +
+                        String(enc.getStepCount()) +
+                        " Edge: " +
+                        String(enc.getEdgeCount()) +
+                        " Rev: " +
+                        String(enc.getRevCount()) +
+                        " Dir: " +
+                        String(enc.getDirection() )+
+                        " Deg: " +
+                        String(enc.getDegrees() ) +
+                        "\r";
+        if(currentMillis - prevMillis >= 1000){
+
+           Serial.print(message);
+            prevMillis = currentMillis;
+        }
+     }
+
+*/

@@ -32,6 +32,7 @@ namespace ctrl{
 }
 io::Stepper raStp;
 io::Stepper decStp;
+io::Encoder EncRA(DI_RA_ENC_A, DI_RA_ENC_B, 8192); // maxEdges is 2048 pulses x 4.
 ui::HandheldController hhc;
 ui::Display disp;
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,6 +52,10 @@ void setup() {
 
     raStp.init(DO_RA_STP_DIR, PWM_RA_STP_PUL, maxFreqRa, false, raCal);
     decStp.init(DO_DEC_STP_DIR, PWM_DEC_STP_PUL, maxFreqDec, true, decCal);
+    pinMode(DI_RA_ENC_A, INPUT_PULLUP); // Set up RA Encoder wiring.
+    pinMode(DI_RA_ENC_B, INPUT_PULLUP);
+
+    EncRA.update();
 }
 
 /// @brief Main loop
@@ -346,6 +351,27 @@ void loop() {
         prevMillis = millis();
     }
     */
+
+    static unsigned long currentMillis;
+    static unsigned long prevMillis = 0;
+    currentMillis = millis();
+    EncRA.update();
+    String message = "Pulse:" +
+                    String(EncRA.getStepCount()) +
+                    " Edge: " +
+                    String(EncRA.getEdgeCount()) +
+                    " Rev: " +
+                    String(EncRA.getRevCount()) +
+                    " Dir: " +
+                    String(EncRA.getDirection() )+
+                    " Deg: " +
+                    String(EncRA.getDegrees() ) +
+                    "\n";
+
+    if(currentMillis - prevMillis >= 1000){
+        Serial.print(message);
+        prevMillis = currentMillis;
+    }
 
     ctrl::homeStop(raStp,decStp);
     // // // // // // // // // SAFTEY LIMITS // // // // // // // // // // // //

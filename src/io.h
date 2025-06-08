@@ -3,6 +3,7 @@
 
 #include "pos.h"
 #include "stepper.h"
+#include "encoder.h"
 
 
 /// @brief The io namespace contains functionality for initialising, reading, 

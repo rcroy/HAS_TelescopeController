@@ -231,10 +231,6 @@ namespace pos {
     }
 
 
-///
-
-
-
 
     /// @brief the initial syncronisation must be done from a known location
     void SiderealTime::_sync(Position base, Position sky){

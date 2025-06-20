@@ -57,6 +57,9 @@
 
 #define DI_RA_ENC_A    A11
 #define DI_RA_ENC_B    A12
+#define DI_DEC_ENC_A   A13
+#define DI_DEC_ENC_B   A14
+
 // #define <PCINT21>   A13 // Can be used as a PCINT intterupt.
 // #define <PCINT22>   A14 // Can be used as a PCINT intterupt.
 // #define <PCINT23>   A15 // Can be used as a PCINT intterupt.

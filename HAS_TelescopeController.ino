@@ -24,6 +24,7 @@ namespace pos{
     const Position homePosition = {BASE, 0.00, 47.2536};
     Position targetPosition = {SKY, 0, 0};
     FrameSet currentLocation;
+    Position EncoderPosition = {SKY, 0, 0}; // This is used to store the position from the encoders.
 }
 
 namespace ctrl{
@@ -33,6 +34,8 @@ namespace ctrl{
 io::Stepper raStp;
 io::Stepper decStp;
 io::Encoder EncRA(DI_RA_ENC_A, DI_RA_ENC_B, 8192); // maxEdges is 2048 pulses x 4.
+io::Encoder EncDEC(DI_DEC_ENC_A, DI_DEC_ENC_B, 8192); // maxEdges is 2048 pulses x 4.
+
 ui::HandheldController hhc;
 ui::Display disp;
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,8 +57,11 @@ void setup() {
     decStp.init(DO_DEC_STP_DIR, PWM_DEC_STP_PUL, maxFreqDec, true, decCal);
     pinMode(DI_RA_ENC_A, INPUT_PULLUP); // Set up RA Encoder wiring.
     pinMode(DI_RA_ENC_B, INPUT_PULLUP);
+    pinMode(DI_DEC_ENC_A, INPUT_PULLUP); 
+    pinMode(DI_DEC_ENC_B, INPUT_PULLUP);
 
     EncRA.update();
+    EncDEC.update();
 }
 
 /// @brief Main loop
@@ -64,6 +70,8 @@ void loop() {
     pos::SiderealTime::update(); // Update the sidereal time
     pos::currentLocation.updateSiderealTime(pos::SiderealTime::getValue()); // Pass the sidereal time to the current location
     pos::currentLocation.updatePosition(io::getMotorPositions(raStp, decStp)); // Update the current location from the motor positions
+    pos::EncoderPosition.updatePosition(io::getEncoderPositions()); // Update the encoder based position
+
     hhc.updateButtons();
     disp.updateStates(hhc,initialSync,io::isHome());
     disp.show(hhc,pos::currentLocation.getPosition(SKY),ctrl::getHoming());
@@ -352,23 +360,45 @@ void loop() {
     }
     */
 
+
+    /*
+    //  Encoders
+    */
+    EncRA.update();
+    EncDEC.update();
+
+    /*
+    // Messaging to the Serial Monitor
+    */
     static unsigned long currentMillis;
     static unsigned long prevMillis = 0;
     currentMillis = millis();
-    EncRA.update();
-    String message = "Pulse:" +
-                    String(EncRA.getStepCount()) +
-                    " Edge: " +
-                    String(EncRA.getEdgeCount()) +
-                    " Rev: " +
-                    String(EncRA.getRevCount()) +
-                    " Dir: " +
-                    String(EncRA.getDirection() )+
-                    " Deg: " +
-                    String(EncRA.getDegrees() ) +
-                    "\n";
-
+    
     if(currentMillis - prevMillis >= 1000){
+
+        String message = "RA Pulse:" +
+                String(EncRA.getStepCount()) +
+                "RA Edge: " +
+                String(EncRA.getEdgeCount()) +
+                "RA Rev: " +
+                String(EncRA.getRevCount()) +
+                "RA Dir: " +
+                String(EncRA.getDirection() )+
+                "RA Deg: " +
+                String(EncRA.getDegrees() ) +
+                " | " +
+                "DEC Pulse:" +
+                String(EncDEC.getStepCount()) +
+                "DEC Edge: " +
+                String(EncDEC.getEdgeCount()) +
+                "DEC Rev: " +
+                String(EncDEC.getRevCount()) +
+                "DEC Dir: " +
+                String(EncDEC.getDirection() )+
+                "DEC Deg: " +
+                String(EncDEC.getDegrees() ) +
+                "\n";
+
         Serial.print(message);
         prevMillis = currentMillis;
     }

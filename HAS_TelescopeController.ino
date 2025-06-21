@@ -34,7 +34,7 @@ namespace ctrl{
 io::Stepper raStp;
 io::Stepper decStp;
 io::Encoder EncRA(DI_RA_ENC_A, DI_RA_ENC_B, 8192); // maxEdges is 2048 pulses x 4.
-io::Encoder EncDEC(DI_DEC_ENC_A, DI_DEC_ENC_B, 8192); // maxEdges is 2048 pulses x 4.
+io::Encoder EncDEC(DI_DEC_ENC_A, DI_DEC_ENC_B, 25464); // maxEdges per 360 degrees.
 
 ui::HandheldController hhc;
 ui::Display disp;
@@ -70,7 +70,7 @@ void loop() {
     pos::SiderealTime::update(); // Update the sidereal time
     pos::currentLocation.updateSiderealTime(pos::SiderealTime::getValue()); // Pass the sidereal time to the current location
     pos::currentLocation.updatePosition(io::getMotorPositions(raStp, decStp)); // Update the current location from the motor positions
-    pos::EncoderPosition.updatePosition(io::getEncoderPositions()); // Update the encoder based position
+    //pos::EncoderPosition.updatePosition(io::getEncoderPositions()); // Update the encoder based position
 
     hhc.updateButtons();
     disp.updateStates(hhc,initialSync,io::isHome());
@@ -378,24 +378,24 @@ void loop() {
 
         String message = "RA Pulse:" +
                 String(EncRA.getStepCount()) +
-                "RA Edge: " +
+                " RA Edge: " +
                 String(EncRA.getEdgeCount()) +
-                "RA Rev: " +
+                " RA Rev: " +
                 String(EncRA.getRevCount()) +
-                "RA Dir: " +
+                " RA Dir: " +
                 String(EncRA.getDirection() )+
-                "RA Deg: " +
+                " RA Deg: " +
                 String(EncRA.getDegrees() ) +
                 " | " +
-                "DEC Pulse:" +
+                " DEC Pulse:" +
                 String(EncDEC.getStepCount()) +
-                "DEC Edge: " +
+                " DEC Edge: " +
                 String(EncDEC.getEdgeCount()) +
-                "DEC Rev: " +
+                " DEC Rev: " +
                 String(EncDEC.getRevCount()) +
-                "DEC Dir: " +
+                " DEC Dir: " +
                 String(EncDEC.getDirection() )+
-                "DEC Deg: " +
+                " DEC Deg: " +
                 String(EncDEC.getDegrees() ) +
                 "\n";
 

@@ -25,15 +25,16 @@ namespace io{
         pos.ra = ra.getPulseCount()/ra.getPulsesPerDeg();
         pos.dec = -dec.getPulseCount()/dec.getPulsesPerDeg();
         return pos;
-
+    }
+    /*
     pos::Position getEncoderPositions(){
         pos::Position posenc;
         posenc.frame = SKY;
-        posenc.ra = EncRA.getDegrees();
-        posenc.dec = EncDEC.getDegrees();
+        posenc.ra = Encoder.EncRA.getDegrees();
+        posenc.dec = Encoder.EncDEC.getDegrees();
         return posenc;
     }
-}
+    */
 
     /// @brief set up the limit switches.
     void setupLimits(){

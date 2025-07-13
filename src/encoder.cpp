@@ -100,3 +100,26 @@ namespace io{
      }
 
 */
+
+/*
+volative long totalPulses = 0;
+
+void countPulses()
+{
+    if(digitalRead(DEC_INC_A) != digitalRead(DEC_INC_B)) 
+    {
+        totalPulses--;
+    } else {
+        totalPulses++;
+    }
+}
+
+void setup() {
+    Serial.begin(9600);
+    pinMode(DEC_INC_A, INPUT_PULLUP);
+    pinMode(DEC_INC_B, INPUT_PULLUP);
+
+    attachInterrupt(digitalPinToInterrupt(DEC_INC_A), countPulses, CHANGE);
+
+}
+*/

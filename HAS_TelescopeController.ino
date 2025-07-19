@@ -38,6 +38,21 @@ io::Encoder EncDEC(DI_DEC_ENC_A, DI_DEC_ENC_B, 25464); // maxEdges per 360 degre
 
 ui::HandheldController hhc;
 ui::Display disp;
+
+// Declare a global pointers for the Encoder objects so that we can use them in the ISR.
+io::Encoder* RA_encPtr = nullptr;
+io::Encoder* DEC_encPtr = nullptr;
+
+// Create Free Functions for the Encoder Interrupt Service Request functions.
+// These functions will be called when the encoders detect a change in state.
+void RA_countPulsesISR() {
+    if (RA_encPtr) RA_encPtr->countPulses();
+}
+
+void DEC_countPulsesISR() {
+    if (DEC_encPtr) DEC_encPtr->countPulses();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 /// Main Program
 ////////////////////////////////////////////////////////////////////////////////
@@ -60,13 +75,11 @@ void setup() {
     pinMode(DI_DEC_ENC_A, INPUT_PULLUP); 
     pinMode(DI_DEC_ENC_B, INPUT_PULLUP);
      
-    //EncRA.update();
-    //EncDEC.update();
-
     // setup interrupts for the A wires of the two encoders, DEC and RA.
-    attachInterrupt(digitalPinToInterrupt(DI_RA_ENC_A), EncRA.countPulses, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(DI_DEC_ENC_A), EncDEC.countPulses, CHANGE);
-    //attachInterrupt(digitalPinToInterrupt(interruptPin), blink, CHANGE);
+    RA_encPtr = &EncRA; // assign the Encoder object to the pointer
+    DEC_encPtr = &EncDEC; // see the Free functions for ISR above.
+    attachInterrupt(digitalPinToInterrupt(DI_RA_ENC_A), RA_countPulsesISR, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(DI_DEC_ENC_A), DEC_countPulsesISR, CHANGE);
 } 
  
 

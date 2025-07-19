@@ -18,14 +18,14 @@ namespace io{
         revCount = 0;
     }
 
-    void Encoder::countPulses() {
+    static void Encoder::countPulses() {
         if(digitalRead(pinA) != digitalRead(pinB)) 
         {
             edgeCount--;
-            deg += -degsPerEdge;
+            deg += degsPerEdge;
         } else {
             edgeCount++;
-            deg += degsPerEdge;
+            deg += -degsPerEdge;
         }
     }
 

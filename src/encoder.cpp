@@ -27,7 +27,6 @@ namespace io{
             edgeCount++;
             deg += degsPerEdge;
         }
-
     }
 
     void Encoder::update(){

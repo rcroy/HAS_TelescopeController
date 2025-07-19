@@ -59,13 +59,16 @@ void setup() {
     pinMode(DI_RA_ENC_B, INPUT_PULLUP);
     pinMode(DI_DEC_ENC_A, INPUT_PULLUP); 
     pinMode(DI_DEC_ENC_B, INPUT_PULLUP);
-    // setup interrupts for the A wires of the two encoders, DEC and RA.
-    attachInterrupt(digitalPinToInterrupt(DI_RA_ENC_A), encRA::countPulses, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(DI_DEC_ENC_A), encDEC::countPulses, CHANGE);
-
+     
     //EncRA.update();
     //EncDEC.update();
-}
+
+    // setup interrupts for the A wires of the two encoders, DEC and RA.
+    attachInterrupt(digitalPinToInterrupt(DI_RA_ENC_A), EncRA.countPulses, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(DI_DEC_ENC_A), EncDEC.countPulses, CHANGE);
+    //attachInterrupt(digitalPinToInterrupt(interruptPin), blink, CHANGE);
+} 
+ 
 
 /// @brief Main loop
 void loop() {

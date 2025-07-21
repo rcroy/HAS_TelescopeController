@@ -24,7 +24,7 @@ namespace pos{
     const Position homePosition = {BASE, 0.00, 47.2536};
     Position targetPosition = {SKY, 0, 0};
     FrameSet currentLocation;
-    Position EncoderPosition = {SKY, 0, 0}; // This is used to store the position from the encoders.
+    FrameSet EncoderPosition; // = {SKY, 0, 0}; // This is used to store the position from the encoders.
 }
 
 namespace ctrl{
@@ -33,30 +33,27 @@ namespace ctrl{
 }
 io::Stepper raStp;
 io::Stepper decStp;
+
 io::Encoder EncRA(DI_RA_ENC_A, DI_RA_ENC_B, 8192); // maxEdges is 2048 pulses x 4.
 io::Encoder EncDEC(DI_DEC_ENC_A, DI_DEC_ENC_B, 25464); // maxEdges per 360 degrees.
-
-ui::HandheldController hhc;
-ui::Display disp;
-
 // Declare a global pointers for the Encoder objects so that we can use them in the ISR.
 io::Encoder* RA_encPtr = nullptr;
 io::Encoder* DEC_encPtr = nullptr;
-
 // Create Free Functions for the Encoder Interrupt Service Request functions.
 // These functions will be called when the encoders detect a change in state.
 void RA_countPulsesISR() {
     if (RA_encPtr) RA_encPtr->countPulses();
 }
-
 void DEC_countPulsesISR() {
     if (DEC_encPtr) DEC_encPtr->countPulses();
 }
 
+ui::HandheldController hhc;
+ui::Display disp;
+
 ////////////////////////////////////////////////////////////////////////////////
 /// Main Program
 ////////////////////////////////////////////////////////////////////////////////
-
 
 /// @brief Main program entry point.
 void setup() {
@@ -89,14 +86,13 @@ void loop() {
     pos::SiderealTime::update(); // Update the sidereal time
     pos::currentLocation.updateSiderealTime(pos::SiderealTime::getValue()); // Pass the sidereal time to the current location
     pos::currentLocation.updatePosition(io::getMotorPositions(raStp, decStp)); // Update the current location from the motor positions
-    //pos::EncoderPosition.updatePosition(io::getEncoderPositions()); // Update the encoder based position
+    pos::EncoderPosition.updatePosition(io::getEncoderPositions(EncRA, EncDEC)); // Update the encoder based position
 
     hhc.updateButtons();
     disp.updateStates(hhc,initialSync,io::isHome());
     disp.show(hhc,pos::currentLocation.getPosition(SKY),ctrl::getHoming());
     ctrl::ctrlMode = (disp.getAutoManState()) ? AUTO : MANUAL;
     ctrl::trkMode = (disp.getTrackState()) ? TRACK : NO_TRACK;
-
 
     /*
        RAMPING CODE
@@ -222,7 +218,6 @@ void loop() {
     }
 
     if(ctrl::ctrlMode == MANUAL){
-        //double slewRateHz = 50000;
         double maxSlewRateHz = 50000;
 
         if (hhc.getPotValue() < 256 ) {
@@ -378,14 +373,7 @@ void loop() {
         prevMillis = millis();
     }
     */
-
-
-    /*
-    //  Encoders
-    EncRA.update();
-    EncDEC.update();
-    */
-
+    
     /*
     // Messaging to the Serial Monitor
     */

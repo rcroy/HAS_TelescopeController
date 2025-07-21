@@ -30,7 +30,6 @@ namespace io{
         int getDirection() {return dir;}
         double getDegrees() {return deg;}
         void countPulses();
-        void update();
         void reset();
     };   
 };

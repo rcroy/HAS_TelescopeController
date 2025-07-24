@@ -162,9 +162,11 @@ void Display::init(){
     lcd.home();
 }
 
-void Display::updateStates(HandheldController hhc, bool sync, bool home){
+void Display::updateStates(HandheldController hhc, bool sync, bool home, Display disp){
     syncState = sync;
     homeState = home;
+    autoManState = disp.getAutoManState();
+
     if (hhc.getBtnMenuRise()){
         if (mode != MENU_MAIN){
             lastMode = mode;
@@ -176,11 +178,12 @@ void Display::updateStates(HandheldController hhc, bool sync, bool home){
     case MENU_MAIN:
         if (hhc.getBtnDecPlusRise()) menuIdx++;
         if (hhc.getBtnDecMinusRise()) menuIdx--;
-        if (menuIdx < 0) menuIdx = 2;
-        if (menuIdx > 2) menuIdx = 0;
+        if (menuIdx < 0) menuIdx = 3;
+        if (menuIdx > 3) menuIdx = 0;
         if (menuIdx == ITM_COORDS && hhc.getBtnRaPlusRise()) mode = COORDS;
         else if (menuIdx == ITM_SYNC_STATUS && hhc.getBtnRaPlusRise()) mode = SYNC;
         else if (menuIdx == ITM_DEBUG && hhc.getBtnRaPlusRise()) mode = MENU_DEBUG;
+        else if (menuIdx == ITM_HOME && autoManState == MANUAL && hhc.getBtnGoToRise()) mode = HOMING;
         break;
     case MENU_DEBUG:
         if (hhc.getBtnDecPlusRise()) dbgMenuIdx++;
@@ -247,6 +250,11 @@ void Display::updateStates(HandheldController hhc, bool sync, bool home){
             case BTN_TST:
                 if (prevMode != BTN_TST) lcd.clear();
                 testButtons(hhc);
+            case HOMING:
+                if (prevMode != HOMING) lcd.clear();
+                showSyncHome();
+                showAutoManState();
+                showTrackState(homing);
             break;
         }
         prevMenuIdx = menuIdx;

@@ -24,7 +24,7 @@ namespace pos{
     const Position homePosition = {BASE, 0.00, 47.2536};
     Position targetPosition = {SKY, 0, 0};
     FrameSet currentLocation;
-    FrameSet EncoderPosition; // = {SKY, 0, 0}; // This is used to store the position from the encoders.
+    FrameSet EncoderPosition; // This is used to store the position from the encoders.
 }
 
 namespace ctrl{
@@ -89,8 +89,8 @@ void loop() {
     pos::EncoderPosition.updatePosition(io::getEncoderPositions(EncRA, EncDEC)); // Update the encoder based position
 
     hhc.updateButtons();
-    disp.updateStates(hhc,initialSync,io::isHome());
-    disp.show(hhc,pos::currentLocation.getPosition(SKY),ctrl::getHoming());
+    disp.updateStates(hhc,initialSync,io::isHome(), disp);
+    disp.show(hhc,pos::EncoderPosition.getPosition(SKY),ctrl::getHoming());
     ctrl::ctrlMode = (disp.getAutoManState()) ? AUTO : MANUAL;
     ctrl::trkMode = (disp.getTrackState()) ? TRACK : NO_TRACK;
 
@@ -159,10 +159,11 @@ void loop() {
                 // disp.setTrackState(true);
             }
             pos::currentLocation.syncTo(pos::targetPosition);
+            pos::EncoderPosition.syncTo(pos::targetPosition);
 
             comms::sendReply("SYNCED TO " + 
-                            comms::double2RaStr(pos::currentLocation.getCoord(SKY, RA)) + " " +
-                            comms::double2DecStr(pos::currentLocation.getCoord(SKY, DECL)));
+                            comms::double2RaStr(pos::EncoderPosition.getCoord(SKY, RA)) + " " +
+                            comms::double2DecStr(pos::EncoderPosition.getCoord(SKY, DECL)));
             buffer = "";
             break;
 
@@ -232,97 +233,87 @@ void loop() {
         
         DisplayMode dispMode = disp.getDisplayMode();
         if(ctrl::getHoming())disp.setTrackState(false);
+
+        if (dispMode == HOMING) {
+            ctrl::moveHome(raStp, decStp);
+            tone(PWM_BZR, NOTE_C6, BEEP_TIME);
+            disp.setDisplayMode(COORDS);
+        } 
+        /*
+         * Scope will not go home if the GOTO button is pressed.
         if(hhc.getBtnGoToRise()) {
             ctrl::moveHome(raStp,decStp);
             tone(PWM_BZR,NOTE_C6,BEEP_TIME);
         }
+        */
 
         // Set ramping rates, if required.
-
         // DEC Plus ramping
         if(hhc.getBtnDecPlusRise()) {
             rampingTriggerDECPlus = true;
-            //Serial.println("DEC+ Step 1: rampingCounterDECPlus: " + String(rampingCounterDECPlus));
-       }
+        }
         if(rampingTriggerDECPlus && !rampingActiveDECPlus) {
             rampingActiveDECPlus = true;
             rampingTriggerDECPlus = false;
             rampingCounterDECPlus = rampingCountMax;
-            //Serial.println("DEC+ Step 2: rampingCounterDECPlus: " + String(rampingCounterDECPlus));
         }
         if(rampingActiveDECPlus && (rampingCounterDECPlus >= 1)) {
             slewRateHzDEC = (maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterDECPlus);
             rampingCounterDECPlus = rampingCounterDECPlus - 1;
-            //Serial.println("DEC+ Step 3: rampingCounterDECPlus: " + String(rampingCounterDECPlus));
         } else if(rampingActiveDECPlus && (rampingCounterDECPlus < 1)) {
             rampingActiveDECPlus = false;
             slewRateHzDEC = maxSlewRateHz;
-            //Serial.println("DEC+ Step 4: rampingCounterDECPlus: " + String(rampingCounterDECPlus));
         }
 
         // DEC Minus ramping
         if(hhc.getBtnDecMinusRise()) {
             rampingTriggerDECMinus = true;
-            //Serial.println("DEC- Step 1: rampingCounterDECMinus: " + String(rampingCounterDECMinus));
         }
         if(rampingTriggerDECMinus && !rampingActiveDECMinus) {
             rampingActiveDECMinus = true;
             rampingTriggerDECMinus = false;
             rampingCounterDECMinus = rampingCountMax;
-            //Serial.println("DEC- Step 2: rampingCounterDECMinus: " + String(rampingCounterDECMinus));
         }
         if(rampingActiveDECMinus && (rampingCounterDECMinus >= 1)) {
             slewRateHzDEC = (maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterDECMinus);
             rampingCounterDECMinus = rampingCounterDECMinus - 1;
-            //Serial.println("DEC- Step 4: rampingCounterDECMinus: " + String(rampingCounterDECMinus));
         } else if(rampingActiveDECMinus && (rampingCounterDECMinus < 1)) {
             rampingActiveDECMinus = false;
             slewRateHzDEC = maxSlewRateHz;
-            //Serial.println("DEC- Step 5: rampingCounterDECMinus: " + String(rampingCounterDECMinus));
         }
 
        // RA Plus ramping
         if(hhc.getBtnRaPlusRise()) {
             rampingTriggerRAPlus = true;
-            //Serial.println("RA+ Step 1: rampingCounterRAPlus: " + String(rampingCounterRAPlus));
         }
         if(rampingTriggerRAPlus && !rampingActiveRAPlus) {
             rampingActiveRAPlus = true;
             rampingTriggerRAPlus = false;
             rampingCounterRAPlus = rampingCountMax;
-            //Serial.println("RA+ Step 2: rampingCounterRAPlus: " + String(rampingCounterRAPlus));
         }
         if(rampingActiveRAPlus && (rampingCounterRAPlus >= 1)) {
             slewRateHzRA = (maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterRAPlus);
             rampingCounterRAPlus = rampingCounterRAPlus - 1;
-            //Serial.println("RA+ Step 3: rampingCounterRAPlus: " + String(rampingCounterRAPlus));
         } else if(rampingActiveRAPlus) {
             rampingActiveRAPlus = false;
             slewRateHzRA = maxSlewRateHz;
-            //Serial.println("RA+ Step 4: rampingCounterRAPlus: " + String(rampingCounterRAPlus));
         }
-        //Serial.println("Post RA+: RampingActiveDECPlus: " + String(rampingActiveDECPlus));
         // RA Minus ramping
         if(hhc.getBtnRaMinusRise()) {
             rampingTriggerRAMinus = true;
-            //Serial.println("RA- Step 1: rampingCounterRAMinus: " + String(rampingCounterRAMinus));
         }
         if(rampingTriggerRAMinus && !rampingActiveRAMinus) {
             rampingActiveRAMinus = true;
             rampingTriggerRAMinus = false;
             rampingCounterRAMinus = rampingCountMax;
-            //Serial.println("RA- Step 2: rampingCounterRAMinus: " + String(rampingCounterRAMinus));
         }
         if(rampingActiveRAMinus && (rampingCounterRAMinus >= 1)) {
             slewRateHzRA = (maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterRAMinus);
             rampingCounterRAMinus = rampingCounterRAMinus - 1;
-            //Serial.println("RA- Step 3: rampingCounterRAMinus: " + String(rampingCounterRAMinus));
         } else if(rampingActiveRAMinus) {
             rampingActiveRAMinus = false;
             slewRateHzRA = maxSlewRateHz;
-            //Serial.println("RA- Step 4: rampingCounterRAMinus: " + String(rampingCounterRAMinus));
         }
-        //Serial.println("Post RA+: RampingActiveDECPlus: " + String(rampingActiveDECPlus)+", Ramping ends");
         // ramping code ends
 
         // Manual move button press code

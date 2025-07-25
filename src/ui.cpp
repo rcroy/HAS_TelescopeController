@@ -130,6 +130,7 @@ namespace ui{
     // HandheldDisplay
     ////////////////////////////////////////////////////////////////////////////
 void Display::init(){
+    // Create custom characters for the LCD
     byte upArrow[8] =   {0b00000, 0b00100, 0b01110, 0b10101,
                         0b00100, 0b00100, 0b00100, 0b00100};
     byte dnArrow[8] =   {0b00000, 0b00100, 0b00100, 0b00100,
@@ -140,7 +141,13 @@ void Display::init(){
                         0b00010, 0b00100, 0b00000, 0b00000};
     byte enArrow[8] =   {0b00000, 0b00001, 0b00001, 0b00101,
                         0b01001, 0b11111, 0b01000, 0b00100};
-
+    byte degrees[8] =   {0b01110, 0b01010, 0b01110, 0b00000,
+                        0b00000, 0b00000, 0b00000, 0b00000};
+    byte minutes[8] =   {0b01000, 0b01000, 0b01000, 0b01000,
+                        0b10000, 0b00000, 0b00000, 0b00000};
+    byte seconds[8] =   {0b01010, 0b01010, 0b01010, 0b01010,
+                        0b10000, 0b10000, 0b00000, 0b00000};
+    
     menuIdx = 0;
     dbgMenuIdx = 0;
     prevMenuIdx = 0;
@@ -157,6 +164,9 @@ void Display::init(){
     lcd.createChar(3, lfArrow);
     lcd.createChar(4, rtArrow);
     lcd.createChar(5, enArrow);
+    lcd.createChar(6, degrees);
+    lcd.createChar(7, minutes); 
+    lcd.createChar(8, seconds);
     // lcd.setBacklight(255);
     lcd.clear();
     lcd.home();
@@ -325,13 +335,12 @@ void Display::showTrackState(bool homing){
 
 void Display::showCoords(double ra, double dec){
     lcd.setCursor(0, 0);
-    lcd.print("RA: ");
+    lcd.print("RA:");
     lcd.print(double2RaStr(ra));
     lcd.setCursor(0, 1);
     lcd.print("DE:");
     lcd.print(double2DecStr(dec));
 }
-
 
 void Display::reboot(){
     wdt_disable();
@@ -401,10 +410,11 @@ void Display::testButtons(HandheldController hhc){
         hourStr = hourInt < 10 ? "0" + String(hourInt) : hourInt;
         minuteStr = minuteInt < 10 ? "0" + String(minuteInt) : minuteInt;
         secondStr = secondInt < 10 ? "0" + String(secondInt) : secondInt;
-        outStr = hourStr + ":" + minuteStr + ":" + secondStr;
+        outStr = hourStr + "\06" + minuteStr + "\07" + secondStr + "\08";
         return outStr;
     }
-
+//DE:00.00'00"
+    
 /// @brief Converts an angle in decimal degrees to the form "DD°MM'SS" for DEC.
 /// @param decDegrees   The angle in degrees.
 /// @return The string representation of the angle.
@@ -435,7 +445,7 @@ void Display::testButtons(HandheldController hhc){
         degStr = degInt < 10 ? "0" + String(degInt) : degInt;
         minuteStr = minuteInt < 10 ? "0" + String(minuteInt) : minuteInt;
         secondStr = secondInt < 10 ? "0" + String(secondInt) : secondInt;
-        outStr = signStr + degStr + char(223) + minuteStr + "'" + secondStr;
+        outStr = signStr + degStr + char(223) + minuteStr + "\07" + secondStr + "\08";
 
         return outStr;
     }

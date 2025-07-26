@@ -29,7 +29,7 @@ namespace io{
     
     pos::Position getEncoderPositions(Encoder& RA_enc, Encoder& DEC_enc){
         pos::Position posenc;
-        posenc.frame = SKY;
+        posenc.frame = MOTOR;
         posenc.ra = RA_enc.getDegrees();
         posenc.dec = -DEC_enc.getDegrees();
         return posenc;

@@ -29,7 +29,7 @@ namespace io{
         int getRevCount() {return revCount;}
         int getDirection() {return dir;}
         double getDegrees() {return deg;}
-        void countPulses();
+        void countPulses(boolean ThisDec);
         void reset();
     };   
 };

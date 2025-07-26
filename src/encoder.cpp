@@ -18,14 +18,23 @@ namespace io{
         revCount = 0;
     }
 
-    static void Encoder::countPulses() {
+    static void Encoder::countPulses(boolean ThisDec) {
         if(digitalRead(pinA) != digitalRead(pinB)) 
         {
             edgeCount--;
-            deg += degsPerEdge;
+            if(ThisDec) {
+                deg += degsPerEdge;
+            } else {
+                deg += -degsPerEdge;
+            }
+
         } else {
             edgeCount++;
-            deg += -degsPerEdge;
+            if(ThisDec) {
+                deg += -degsPerEdge;
+            } else {
+                deg += degsPerEdge;
+            }
         }
     }
 

@@ -143,10 +143,10 @@ void Display::init(){
                         0b01001, 0b11111, 0b01000, 0b00100};
     byte hours[8] =   {0b10000, 0b10000, 0b11100, 0b10100,
                         0b10100, 0b00000, 0b00000, 0b00000};
-    byte minutes[8] =   {0b01000, 0b01000, 0b01000, 0b01000,
-                        0b10000, 0b00000, 0b00000, 0b00000};
-    byte seconds[8] =   {0b01010, 0b01010, 0b01010, 0b01010,
-                        0b10000, 0b10000, 0b00000, 0b00000};
+    byte minutes[8] =   {0b01000, 0b01000, 0b01000, 0b10000,
+                        0b00000, 0b00000, 0b00000, 0b00000};
+    byte seconds[8] =   {0b01010, 0b01010, 0b01010, 0b10100,
+                        0b00000, 0b00000, 0b00000, 0b00000};
     
     menuIdx = 0;
     dbgMenuIdx = 0;
@@ -166,7 +166,7 @@ void Display::init(){
     lcd.createChar(5, enArrow);
     lcd.createChar(6, hours);
     lcd.createChar(7, minutes); 
-    lcd.createChar(8, seconds);
+    lcd.createChar(0, seconds);
     // lcd.setBacklight(255);
     lcd.clear();
     lcd.home();
@@ -410,7 +410,7 @@ void Display::testButtons(HandheldController hhc){
         hourStr = hourInt < 10 ? "0" + String(hourInt) : hourInt;
         minuteStr = minuteInt < 10 ? "0" + String(minuteInt) : minuteInt;
         secondStr = secondInt < 10 ? "0" + String(secondInt) : secondInt;
-        outStr = hourStr + "\06" + minuteStr + "\07" + secondStr + "\08";
+        outStr = hourStr + "\06" + minuteStr + "\07" + secondStr + "\00";
         return outStr;
     }
 //DE:00.00'00"
@@ -445,7 +445,7 @@ void Display::testButtons(HandheldController hhc){
         degStr = degInt < 10 ? "0" + String(degInt) : degInt;
         minuteStr = minuteInt < 10 ? "0" + String(minuteInt) : minuteInt;
         secondStr = secondInt < 10 ? "0" + String(secondInt) : secondInt;
-        outStr = signStr + degStr + char(223) + minuteStr + "\07" + secondStr + "\08";
+        outStr = signStr + degStr + char(223) + minuteStr + "\07" + secondStr + "\00";
 
         return outStr;
     }

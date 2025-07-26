@@ -42,10 +42,10 @@ io::Encoder* DEC_encPtr = nullptr;
 // Create Free Functions for the Encoder Interrupt Service Request functions.
 // These functions will be called when the encoders detect a change in state.
 void RA_countPulsesISR() {
-    if (RA_encPtr) RA_encPtr->countPulses();
+    if (RA_encPtr) RA_encPtr->countPulses(false);
 }
 void DEC_countPulsesISR() {
-    if (DEC_encPtr) DEC_encPtr->countPulses();
+    if (DEC_encPtr) DEC_encPtr->countPulses(true);
 }
 
 ui::HandheldController hhc;
@@ -84,8 +84,8 @@ void setup() {
 void loop() {
 
     pos::SiderealTime::update(); // Update the sidereal time
-    pos::currentLocation.updateSiderealTime(pos::SiderealTime::getValue()); // Pass the sidereal time to the current location
-    pos::currentLocation.updatePosition(io::getMotorPositions(raStp, decStp)); // Update the current location from the motor positions
+    //pos::currentLocation.updateSiderealTime(pos::SiderealTime::getValue()); // Pass the sidereal time to the current location
+    //pos::currentLocation.updatePosition(io::getMotorPositions(raStp, decStp)); // Update the current location from the motor positions
 
     pos::EncoderPosition.updateSiderealTime(pos::SiderealTime::getValue()); // Pass the sidereal time to the current location
     pos::EncoderPosition.updatePosition(io::getEncoderPositions(EncRA, EncDEC)); // Update the encoder based position
@@ -162,9 +162,10 @@ void loop() {
                 }
                 //pos::currentLocation.syncTo(pos::targetPosition);
                 pos::EncoderPosition.syncTo(pos::targetPosition);
+                //pos::EncoderPosition.updatePosition(pos::targetPosition);
 
-                comms::sendReply("SYNCED TO " + 
-                                comms::double2RaStr(pos::EncoderPosition.getCoord(SKY, RA)) + " " +
+                comms::sendReply("SYNCTO " + 
+                                comms::double2RaStr(pos::EncoderPosition.getCoord(SKY, RA)) + " s" +
                                 comms::double2DecStr(pos::EncoderPosition.getCoord(SKY, DECL)));
                 buffer = "";
                 break;

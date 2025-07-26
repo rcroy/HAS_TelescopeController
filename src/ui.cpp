@@ -189,7 +189,7 @@ void Display::updateStates(HandheldController hhc, bool sync, bool home, Display
         if (hhc.getBtnDecPlusRise()) menuIdx++;
         if (hhc.getBtnDecMinusRise()) menuIdx--;
         if (menuIdx < 0) menuIdx = 3;
-        if (menuIdx > 3) menuIdx = 0;
+        if (menuIdx > 4) menuIdx = 0;
         if (menuIdx == ITM_COORDS && hhc.getBtnRaPlusRise()) mode = COORDS;
         else if (menuIdx == ITM_SYNC_STATUS && hhc.getBtnRaPlusRise()) mode = SYNC;
         else if (menuIdx == ITM_DEBUG && hhc.getBtnRaPlusRise()) mode = MENU_DEBUG;

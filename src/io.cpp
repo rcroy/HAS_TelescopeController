@@ -31,7 +31,7 @@ namespace io{
         pos::Position posenc;
         posenc.frame = SKY;
         posenc.ra = RA_enc.getDegrees();
-        posenc.dec = DEC_enc.getDegrees();
+        posenc.dec = -DEC_enc.getDegrees();
         return posenc;
     }
     

@@ -16,8 +16,8 @@ command currentCmd;
 String coordString;
 // bool g_isSlewing = false;
 bool initialSync = false;
-uint32_t maxFreqRa = 30000;
-uint32_t maxFreqDec = 50000;
+uint32_t maxFreqRa = 80000; // was 30000
+uint32_t maxFreqDec = 80000;
 stepperCalibration raCal = {29918.22352,-0.4805,32558};
 stepperCalibration decCal = {99603.48705,-1.2116,74717};
 namespace pos{
@@ -34,8 +34,8 @@ namespace ctrl{
 io::Stepper raStp;
 io::Stepper decStp;
 
-io::Encoder EncRA(DI_RA_ENC_A, DI_RA_ENC_B, 8192); // maxEdges is 2048 pulses x 4.
-io::Encoder EncDEC(DI_DEC_ENC_A, DI_DEC_ENC_B, 25464); // maxEdges per 360 degrees.
+io::Encoder EncRA(DI_RA_ENC_A, DI_RA_ENC_B, 4176); // Edges per 360 degrees
+io::Encoder EncDEC(DI_DEC_ENC_A, DI_DEC_ENC_B, 13107); // Edges per 360 degrees.
 // Declare a global pointers for the Encoder objects so that we can use them in the ISR.
 io::Encoder* RA_encPtr = nullptr;
 io::Encoder* DEC_encPtr = nullptr;
@@ -141,12 +141,12 @@ void loop() {
         currentCmd = comms::parseCommand(buffer);
         switch (currentCmd) {
             case GET_RA:
-            comms::sendReply(comms::double2RaStr(pos::currentLocation.getCoord(SKY, RA)));
+            comms::sendReply(comms::double2RaStr(pos::EncoderPosition.getCoord(SKY, RA)));
             buffer = "";
             break;
 
             case GET_DEC:
-            comms::sendReply(comms::double2DecStr(pos::currentLocation.getCoord(SKY, DECL)));
+            comms::sendReply(comms::double2DecStr(pos::EncoderPosition.getCoord(SKY, DECL)));
             buffer = "";
             break;
 
@@ -219,14 +219,14 @@ void loop() {
     }
 
     if(ctrl::ctrlMode == MANUAL){
-        double maxSlewRateHz = 50000;
+        double maxSlewRateHz = 80000;
 
         if (hhc.getPotValue() < 256 ) {
             maxSlewRateHz = 10000;
         } else if (hhc.getPotValue() < 512 ) {
-            maxSlewRateHz = 20000;
-        } else if (hhc.getPotValue() < 768 ) {
             maxSlewRateHz = 35000;
+        } else if (hhc.getPotValue() < 768 ) {
+            maxSlewRateHz = 55000;
         } else {
             maxSlewRateHz = maxSlewRateHz;
         }
@@ -365,9 +365,9 @@ void loop() {
     }
     */
     
-    /*
+   /*
     // Messaging to the Serial Monitor
-    */
+
     static unsigned long currentMillis;
     static unsigned long prevMillis = 0;
     currentMillis = millis();
@@ -400,6 +400,8 @@ void loop() {
         Serial.print(message);
         prevMillis = currentMillis;
     }
+*/
+
 
     ctrl::homeStop(raStp,decStp);
     // // // // // // // // // SAFTEY LIMITS // // // // // // // // // // // //

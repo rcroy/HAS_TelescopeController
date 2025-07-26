@@ -151,8 +151,8 @@ namespace pos {
         else {
             sky = targetSky;
             sky2Base();
-            home.lha = base.lha - motor.degRa;
-            home.dec = base.dec - motor.degDec;
+            home.lha = base.lha - sky.degRa; // was motor.degRa
+            home.dec = base.dec - sky.degDec;
             base2Altaz();
         }
     }

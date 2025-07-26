@@ -16,8 +16,8 @@ command currentCmd;
 String coordString;
 // bool g_isSlewing = false;
 bool initialSync = false;
-uint32_t maxFreqRa = 80000; // was 30000
-uint32_t maxFreqDec = 80000;
+uint32_t maxFreqRa = 70000; // was 30000
+uint32_t maxFreqDec = 70000; // was 50000
 stepperCalibration raCal = {29918.22352,-0.4805,32558};
 stepperCalibration decCal = {99603.48705,-1.2116,74717};
 namespace pos{
@@ -86,8 +86,10 @@ void loop() {
     pos::SiderealTime::update(); // Update the sidereal time
     pos::currentLocation.updateSiderealTime(pos::SiderealTime::getValue()); // Pass the sidereal time to the current location
     pos::currentLocation.updatePosition(io::getMotorPositions(raStp, decStp)); // Update the current location from the motor positions
-    pos::EncoderPosition.updatePosition(io::getEncoderPositions(EncRA, EncDEC)); // Update the encoder based position
 
+    pos::EncoderPosition.updateSiderealTime(pos::SiderealTime::getValue()); // Pass the sidereal time to the current location
+    pos::EncoderPosition.updatePosition(io::getEncoderPositions(EncRA, EncDEC)); // Update the encoder based position
+    
     hhc.updateButtons();
     disp.updateStates(hhc,initialSync,io::isHome(), disp);
     disp.show(hhc,pos::EncoderPosition.getPosition(SKY),ctrl::getHoming());
@@ -141,92 +143,92 @@ void loop() {
         currentCmd = comms::parseCommand(buffer);
         switch (currentCmd) {
             case GET_RA:
-            comms::sendReply(comms::double2RaStr(pos::EncoderPosition.getCoord(SKY, RA)));
-            buffer = "";
-            break;
+                comms::sendReply(comms::double2RaStr(pos::EncoderPosition.getCoord(SKY, RA)));
+                buffer = "";
+                break;
 
             case GET_DEC:
-            comms::sendReply(comms::double2DecStr(pos::EncoderPosition.getCoord(SKY, DECL)));
-            buffer = "";
-            break;
+                comms::sendReply(comms::double2DecStr(pos::EncoderPosition.getCoord(SKY, DECL)));
+                buffer = "";
+                break;
 
             case SYNC_POSITION:
-            if (!initialSync){
-                pos::SiderealTime::sync(pos::homePosition, pos::targetPosition);
-                pos::currentLocation.initialiseSiderealTime(pos::SiderealTime::getValue());
-                initialSync = true;
-                disp.setDisplayMode(COORDS);
-                // disp.setTrackState(true);
-            }
-            pos::currentLocation.syncTo(pos::targetPosition);
-            pos::EncoderPosition.syncTo(pos::targetPosition);
+                if (!initialSync){
+                    pos::SiderealTime::sync(pos::homePosition, pos::targetPosition);
+                    pos::EncoderPosition.initialiseSiderealTime(pos::SiderealTime::getValue());
+                    initialSync = true;
+                    disp.setDisplayMode(COORDS);
+                    // disp.setTrackState(true);
+                }
+                //pos::currentLocation.syncTo(pos::targetPosition);
+                pos::EncoderPosition.syncTo(pos::targetPosition);
 
-            comms::sendReply("SYNCED TO " + 
-                            comms::double2RaStr(pos::EncoderPosition.getCoord(SKY, RA)) + " " +
-                            comms::double2DecStr(pos::EncoderPosition.getCoord(SKY, DECL)));
-            buffer = "";
-            break;
+                comms::sendReply("SYNCED TO " + 
+                                comms::double2RaStr(pos::EncoderPosition.getCoord(SKY, RA)) + " " +
+                                comms::double2DecStr(pos::EncoderPosition.getCoord(SKY, DECL)));
+                buffer = "";
+                break;
 
             case SLEW_TO_TARGET:
-            switch (ctrl::ctrlMode){
-                case AUTO:
-                comms::sendReply(ctrl::checkTargetReachable(pos::targetPosition));
-                ctrl::move(pos::currentLocation, pos::targetPosition,raStp, decStp);
-                // g_isSlewing = true;
+                switch (ctrl::ctrlMode){
+                    case AUTO:
+                    comms::sendReply(ctrl::checkTargetReachable(pos::targetPosition));
+                    ctrl::move(pos::EncoderPosition, pos::targetPosition,raStp, decStp);
+                    // g_isSlewing = true;
+                    break;
+                    case MANUAL:
+                    comms::sendReply("2: Telescope in Manual mode");
+                    break;
+                }
+                buffer = "";
                 break;
-                case MANUAL:
-                comms::sendReply("2: Telescope in Manual mode");
-                break;
-            }
-            buffer = "";
-            break;
 
             case STOP_SLEW:
-            switch (ctrl::ctrlMode){
-                case AUTO:
-                ctrl::stopAllMovement(raStp, decStp);
+                switch (ctrl::ctrlMode){
+                    case AUTO:
+                    ctrl::stopAllMovement(raStp, decStp);
+                    break;
+                    case MANUAL:
+                    break;
+                }
+                buffer = "";
                 break;
-                case MANUAL:
-                break;
-            }
-            buffer = "";
-            break;
 
             case SET_TARGET_RA:
-            coordString = comms::extractCoord(buffer);
-            pos::targetPosition.ra = comms::raStr2Double(coordString);
-            comms::sendReply("1"); //add checking of of parsed string later
-            buffer = "";
-            Serial1.println("SET_TARGET_RA:");
-            Serial1.println(pos::targetPosition.ra);
-            break;
+                coordString = comms::extractCoord(buffer);
+                pos::targetPosition.ra = comms::raStr2Double(coordString);
+                comms::sendReply("1"); //add checking of of parsed string later
+                buffer = "";
+                Serial1.println("SET_TARGET_RA:");
+                Serial1.println(pos::targetPosition.ra);
+                break;
 
             case SET_TARGET_DEC:
-            coordString = comms::extractCoord(buffer);
-            pos::targetPosition.dec = comms::decStr2Double(coordString);
-            comms::sendReply("1"); //add checking of of parsed string later
-            buffer = "";
-            Serial1.println("SET_TARGET_DEC:");
-            Serial1.println(pos::targetPosition.dec);
-            break;
+                coordString = comms::extractCoord(buffer);
+                pos::targetPosition.dec = comms::decStr2Double(coordString);
+                comms::sendReply("1"); //add checking of of parsed string later
+                buffer = "";
+                Serial1.println("SET_TARGET_DEC:");
+                Serial1.println(pos::targetPosition.dec);
+                break;
 
             default:
-            // Serial1.println("WARN: invalid command received");
-            buffer = "";
-            break;
+                // Serial1.println("WARN: invalid command received");
+                buffer = "";
+                break;
         }
     
     }
 
     if(ctrl::ctrlMode == MANUAL){
-        double maxSlewRateHz = 80000;
+        double maxSlewRateHz = 70000;
 
         if (hhc.getPotValue() < 256 ) {
             maxSlewRateHz = 10000;
         } else if (hhc.getPotValue() < 512 ) {
-            maxSlewRateHz = 35000;
+            maxSlewRateHz = 30000;
         } else if (hhc.getPotValue() < 768 ) {
-            maxSlewRateHz = 55000;
+            maxSlewRateHz = 65000;
         } else {
             maxSlewRateHz = maxSlewRateHz;
         }
@@ -336,7 +338,7 @@ void loop() {
             //  if (ctrl::getHoming()) decStp.run(FORWARD, decStp.getMaxFrequency());
             decStp.run(FORWARD, slewRateHzDEC);
         }
-        else if(!hhc.getBtnDecMinus()&& (dispMode == COORDS || dispMode == SYNC)){
+        else if(!hhc.getBtnDecMinus() && (dispMode == COORDS || dispMode == SYNC)){
             if (ctrl::getHoming()) decStp.run(REVERSE, decStp.getMaxFrequency());
             else decStp.run(REVERSE, slewRateHzDEC);
         }

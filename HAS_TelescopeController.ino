@@ -42,10 +42,10 @@ io::Encoder* DEC_encPtr = nullptr;
 // Create Free Functions for the Encoder Interrupt Service Request functions.
 // These functions will be called when the encoders detect a change in state.
 void RA_countPulsesISR() {
-    if (RA_encPtr) RA_encPtr->countPulses(false);
+    if (RA_encPtr) RA_encPtr->countPulses(false); // false = RA enc.
 }
 void DEC_countPulsesISR() {
-    if (DEC_encPtr) DEC_encPtr->countPulses(true);
+    if (DEC_encPtr) DEC_encPtr->countPulses(true); // true = DEC enc.
 }
 
 ui::HandheldController hhc;
@@ -173,13 +173,13 @@ void loop() {
             case SLEW_TO_TARGET:
                 switch (ctrl::ctrlMode){
                     case AUTO:
-                    comms::sendReply(ctrl::checkTargetReachable(pos::targetPosition));
-                    ctrl::move(pos::EncoderPosition, pos::targetPosition,raStp, decStp);
-                    // g_isSlewing = true;
-                    break;
+                        comms::sendReply(ctrl::checkTargetReachable(pos::targetPosition));
+                        ctrl::move(pos::EncoderPosition, pos::targetPosition,raStp, decStp);
+                        // g_isSlewing = true;
+                        break;
                     case MANUAL:
-                    comms::sendReply("2: Telescope in Manual mode");
-                    break;
+                        comms::sendReply("2: Telescope in Manual mode");
+                        break;
                 }
                 buffer = "";
                 break;

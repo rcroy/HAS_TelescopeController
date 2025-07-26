@@ -161,12 +161,11 @@ void Display::init(){
     lcd.begin(16, 2);  // initialize the lcd
     lcd.createChar(1, upArrow);
     lcd.createChar(2, dnArrow);
-    lcd.createChar(3, lfArrow);
+    lcd.createChar(3, seconds); // lfArrow
     lcd.createChar(4, rtArrow);
     lcd.createChar(5, enArrow);
     lcd.createChar(6, hours);
     lcd.createChar(7, minutes); 
-    lcd.createChar(0, seconds);
     // lcd.setBacklight(255);
     lcd.clear();
     lcd.home();
@@ -410,7 +409,7 @@ void Display::testButtons(HandheldController hhc){
         hourStr = hourInt < 10 ? "0" + String(hourInt) : hourInt;
         minuteStr = minuteInt < 10 ? "0" + String(minuteInt) : minuteInt;
         secondStr = secondInt < 10 ? "0" + String(secondInt) : secondInt;
-        outStr = hourStr + "\06" + minuteStr + "\07" + secondStr + "\00";
+        outStr = hourStr + "\06" + minuteStr + "\07" + secondStr + "\03";
         return outStr;
     }
 //DE:00.00'00"
@@ -445,7 +444,7 @@ void Display::testButtons(HandheldController hhc){
         degStr = degInt < 10 ? "0" + String(degInt) : degInt;
         minuteStr = minuteInt < 10 ? "0" + String(minuteInt) : minuteInt;
         secondStr = secondInt < 10 ? "0" + String(secondInt) : secondInt;
-        outStr = signStr + degStr + char(223) + minuteStr + "\07" + secondStr + "\00";
+        outStr = signStr + degStr + char(223) + minuteStr + "\07" + secondStr + "\03";
 
         return outStr;
     }

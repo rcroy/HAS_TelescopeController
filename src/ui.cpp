@@ -141,8 +141,8 @@ void Display::init(){
                         0b00010, 0b00100, 0b00000, 0b00000};
     byte enArrow[8] =   {0b00000, 0b00001, 0b00001, 0b00101,
                         0b01001, 0b11111, 0b01000, 0b00100};
-    byte degrees[8] =   {0b01110, 0b01010, 0b01110, 0b00000,
-                        0b00000, 0b00000, 0b00000, 0b00000};
+    byte hours[8] =   {0b10000, 0b10000, 0b11100, 0b10100,
+                        0b10100, 0b00000, 0b00000, 0b00000};
     byte minutes[8] =   {0b01000, 0b01000, 0b01000, 0b01000,
                         0b10000, 0b00000, 0b00000, 0b00000};
     byte seconds[8] =   {0b01010, 0b01010, 0b01010, 0b01010,
@@ -164,7 +164,7 @@ void Display::init(){
     lcd.createChar(3, lfArrow);
     lcd.createChar(4, rtArrow);
     lcd.createChar(5, enArrow);
-    lcd.createChar(6, degrees);
+    lcd.createChar(6, hours);
     lcd.createChar(7, minutes); 
     lcd.createChar(8, seconds);
     // lcd.setBacklight(255);
@@ -282,7 +282,7 @@ void Display::showSyncHome(){
 }
 
 void Display::showMenu(){
-    String options[3] = {"COORDS", "SYNC STATUS", "DEBUG"};
+    String options[4] = {"COORDS", "SYNC STATUS", "DEBUG", "HOME"};
     // lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("MENU:");
@@ -292,7 +292,7 @@ void Display::showMenu(){
     lcd.print(options[menuIdx] + " \04");
     lcd.setCursor(15,1);
     lcd.print("\02");
-    }
+}
 
 void Display::showMenuDebug(){
     String options[2] = {"TEST BUTTONS", "REBOOT"};
@@ -305,7 +305,7 @@ void Display::showMenuDebug(){
     lcd.print(options[dbgMenuIdx] + " \04");
     lcd.setCursor(15,1);
     lcd.print("\02");
-    }
+}
 
 
 void Display::showAutoManState(){
@@ -335,10 +335,10 @@ void Display::showTrackState(bool homing){
 
 void Display::showCoords(double ra, double dec){
     lcd.setCursor(0, 0);
-    lcd.print("RA:");
+    lcd.print("R:");
     lcd.print(double2RaStr(ra));
     lcd.setCursor(0, 1);
-    lcd.print("DE:");
+    lcd.print("D:");
     lcd.print(double2DecStr(dec));
 }
 

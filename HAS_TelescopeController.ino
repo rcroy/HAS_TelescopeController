@@ -17,7 +17,7 @@ String coordString;
 // bool g_isSlewing = false;
 bool initialSync = false;
 uint32_t maxFreqRa = 70000; // was 30000
-uint32_t maxFreqDec = 70000; // was 50000
+uint32_t maxFreqDec = 50000; // was 50000
 stepperCalibration raCal = {29918.22352,-0.4805,32558};
 stepperCalibration decCal = {99603.48705,-1.2116,74717};
 namespace pos{
@@ -222,16 +222,21 @@ void loop() {
     }
 
     if(ctrl::ctrlMode == MANUAL){
-        double maxSlewRateHz = 70000;
+        double RA_maxSlewRateHz = 70000;
+        double DEC_maxSlewRateHz = 50000;
 
         if (hhc.getPotValue() < 256 ) {
-            maxSlewRateHz = 10000;
+            RA_maxSlewRateHz = 10000;
+            DEC_maxSlewRateHz = 6000;
         } else if (hhc.getPotValue() < 512 ) {
-            maxSlewRateHz = 30000;
+            RA_maxSlewRateHz = 30000;
+            DEC_maxSlewRateHz = 25000;
         } else if (hhc.getPotValue() < 768 ) {
-            maxSlewRateHz = 65000;
+            RA_maxSlewRateHz = 50000;
+            DEC_maxSlewRateHz = 40000;
         } else {
-            maxSlewRateHz = maxSlewRateHz;
+            RA_maxSlewRateHz = 70000;
+            DEC_maxSlewRateHz = 50000;
         }
         
         DisplayMode dispMode = disp.getDisplayMode();
@@ -261,11 +266,11 @@ void loop() {
             rampingCounterDECPlus = rampingCountMax;
         }
         if(rampingActiveDECPlus && (rampingCounterDECPlus >= 1)) {
-            slewRateHzDEC = (maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterDECPlus);
+            slewRateHzDEC = (DEC_maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterDECPlus);
             rampingCounterDECPlus = rampingCounterDECPlus - 1;
         } else if(rampingActiveDECPlus && (rampingCounterDECPlus < 1)) {
             rampingActiveDECPlus = false;
-            slewRateHzDEC = maxSlewRateHz;
+            slewRateHzDEC = DEC_maxSlewRateHz;
         }
 
         // DEC Minus ramping
@@ -278,11 +283,11 @@ void loop() {
             rampingCounterDECMinus = rampingCountMax;
         }
         if(rampingActiveDECMinus && (rampingCounterDECMinus >= 1)) {
-            slewRateHzDEC = (maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterDECMinus);
+            slewRateHzDEC = (RA_maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterDECMinus);
             rampingCounterDECMinus = rampingCounterDECMinus - 1;
         } else if(rampingActiveDECMinus && (rampingCounterDECMinus < 1)) {
             rampingActiveDECMinus = false;
-            slewRateHzDEC = maxSlewRateHz;
+            slewRateHzDEC = RA_maxSlewRateHz;
         }
 
        // RA Plus ramping
@@ -295,11 +300,11 @@ void loop() {
             rampingCounterRAPlus = rampingCountMax;
         }
         if(rampingActiveRAPlus && (rampingCounterRAPlus >= 1)) {
-            slewRateHzRA = (maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterRAPlus);
+            slewRateHzRA = (RA_maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterRAPlus);
             rampingCounterRAPlus = rampingCounterRAPlus - 1;
         } else if(rampingActiveRAPlus) {
             rampingActiveRAPlus = false;
-            slewRateHzRA = maxSlewRateHz;
+            slewRateHzRA = RA_maxSlewRateHz;
         }
         // RA Minus ramping
         if(hhc.getBtnRaMinusRise()) {
@@ -311,22 +316,22 @@ void loop() {
             rampingCounterRAMinus = rampingCountMax;
         }
         if(rampingActiveRAMinus && (rampingCounterRAMinus >= 1)) {
-            slewRateHzRA = (maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterRAMinus);
+            slewRateHzRA = (RA_maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterRAMinus);
             rampingCounterRAMinus = rampingCounterRAMinus - 1;
         } else if(rampingActiveRAMinus) {
             rampingActiveRAMinus = false;
-            slewRateHzRA = maxSlewRateHz;
+            slewRateHzRA = RA_maxSlewRateHz;
         }
         // ramping code ends
 
         // Manual move button press code
         if(!hhc.getBtnRaPlus() && (dispMode == COORDS || dispMode == SYNC) ){
             if (ctrl::getHoming()) raStp.run(REVERSE, raStp.getMaxFrequency());
-            else raStp.run(REVERSE, slewRateHzRA/1.5);
+            else raStp.run(REVERSE, slewRateHzRA);
         }
         else if(!hhc.getBtnRaMinus() && (dispMode == COORDS || dispMode == SYNC)){
             if (ctrl::getHoming()) raStp.run(FORWARD, raStp.getMaxFrequency());
-            else raStp.run(FORWARD, slewRateHzRA/1.5);
+            else raStp.run(FORWARD, slewRateHzRA);
         }
         else if(ctrl::trkMode == TRACK){
             raStp.run(FORWARD, ctrl::trackRateHz);

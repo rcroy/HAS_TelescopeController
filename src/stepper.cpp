@@ -22,11 +22,10 @@ namespace io{
 
         dir = FORWARD;
         pinMode(pinDIR, OUTPUT);
-        // Serial.println("StepFreq: "+ String(maxFrequency));
+        //Serial.println("StepFreq: "+ String(maxFrequency));
         Pulse.init(pinPUL, maxFrequency);
         Pulse.setDirection(dir);
         Pulse.setRunMode(TARGET);
-        // Serial.println("Stepper::Stepper()");
     }
 
     /// @brief Set the frequency of the stepper motor. Cap at maxFrequency if input is greater.

@@ -16,8 +16,8 @@ command currentCmd;
 String coordString;
 // bool g_isSlewing = false;
 bool initialSync = false;
-uint32_t maxFreqRa = 50000; // was 30000
-uint32_t maxFreqDec = 25000; // was 50000
+uint32_t maxFreqRa = 40000; // was 30000
+uint32_t maxFreqDec = 50000; 
 stepperCalibration raCal = {29918.22352,-0.4805,32558};
 stepperCalibration decCal = {99603.48705,-1.2116,74717};
 namespace pos{
@@ -227,21 +227,21 @@ void loop() {
     }
 
     if(ctrl::ctrlMode == MANUAL){
-        double RA_maxSlewRateHz = 50000;
-        double DEC_maxSlewRateHz = 25000;
+        double RA_maxSlewRateHz = 40000;
+        double DEC_maxSlewRateHz = 50000;
 
         if (hhc.getPotValue() < 256 ) {
-            RA_maxSlewRateHz = 10000;
+            RA_maxSlewRateHz = 6000;
             DEC_maxSlewRateHz = 6000;
         } else if (hhc.getPotValue() < 512 ) {
-            RA_maxSlewRateHz = 30000;
+            RA_maxSlewRateHz = 20000;
             DEC_maxSlewRateHz = 25000;
         } else if (hhc.getPotValue() < 768 ) {
-            RA_maxSlewRateHz = 50000;
-            DEC_maxSlewRateHz = 25000;
+            RA_maxSlewRateHz = 30000;
+            DEC_maxSlewRateHz = 35000;
         } else {
-            RA_maxSlewRateHz = 50000;
-            DEC_maxSlewRateHz = 25000;
+            RA_maxSlewRateHz = 40000;
+            DEC_maxSlewRateHz = 50000;
         }
         
         DisplayMode dispMode = disp.getDisplayMode();
@@ -363,7 +363,7 @@ void loop() {
         }
         // END Manual move button press code
     }
-    
+/*    
     if(millis()-prevMillis>=500){
         //Serial.println("rampingCounterDECPlus: " + String(rampingCounterDECPlus)+", rampingActiveDECPlus: " + String(rampingActiveDECPlus)) ;
         //Serial.println("rampingActiveDECPlus: " + String(rampingActiveDECPlus));
@@ -379,7 +379,7 @@ void loop() {
         
         prevMillis = millis();
     }
-    
+  */  
     
    /*
     // Messaging to the Serial Monitor

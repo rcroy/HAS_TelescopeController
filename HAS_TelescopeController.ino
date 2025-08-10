@@ -101,45 +101,6 @@ void loop() {
     int DECstepping = 0;
     static unsigned long prevMillis = millis();
 
-    /*
-       RAMPING CODE
-    */
-    static int rampingCountMax = 30;
-
-    // DEC Plus ramping variables
-    static bool rampingActiveDECPlus = false;
-    static bool rampingTriggerDECPlus = false;
-    static long int rampingCounterDECPlus = 0;
-    
-    static double slewRateHzDEC = 0;
-
-    // DEC Minus ramping variables
-    static bool rampingActiveDECMinus = false;
-    static bool rampingTriggerDECMinus = false;
-    static long int rampingCounterDECMinus = 0;
-    
-    // RA Plus ramping variables
-    static bool rampingActiveRAPlus = false;
-    static bool rampingTriggerRAPlus = false;
-    static long int rampingCounterRAPlus = 0;
-    
-    static double slewRateHzRA = 0;
-
-    // DEC Minus ramping variables
-    static bool rampingActiveRAMinus = false;
-    static bool rampingTriggerRAMinus = false;
-    static long int rampingCounterRAMinus = 0;
-
-    static bool rampingActive;
-
-    if (rampingActiveDECPlus || rampingActiveDECMinus || rampingActiveRAPlus || rampingActiveRAMinus) {
-        rampingActive = true;
-    } else {
-        rampingActive = false;
-    }
-
-    // RAMPING CODE ends
-
     if(ctrl::trkMode == TRACK && ctrl::getScopeStatus(raStp, decStp) == IDLE){
             raStp.run(FORWARD, ctrl::trackRateHz);
     }
@@ -323,7 +284,7 @@ void loop() {
         }
         // END Manual move button press code
     }
-    
+
 /*    
     if(millis()-prevMillis>=500){
         //Serial.println("rampingCounterDECPlus: " + String(rampingCounterDECPlus)+", rampingActiveDECPlus: " + String(rampingActiveDECPlus)) ;

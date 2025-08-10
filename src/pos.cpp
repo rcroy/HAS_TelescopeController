@@ -146,12 +146,13 @@ namespace pos {
     /// the target position, convert to base frame, then syncronise home position
     void FrameSet::syncTo(Position targetSky){
         if (targetSky.frame != SKY) {
+            tone(PWM_BZR, NOTE_C4, BEEP_TIME);
             Serial1.println("Error: target frame must be SKY");
         }
         else {
             sky = targetSky;
             sky2Base();
-            home.lha = base.lha - motor.degRa;
+            home.lha = base.lha - motor.degRa; // was motor.degRa
             home.dec = base.dec - motor.degDec;
             base2Altaz();
         }
@@ -229,10 +230,6 @@ namespace pos {
         home.dec = 0;
 
     }
-
-
-///
-
 
 
 

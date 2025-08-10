@@ -1,11 +1,13 @@
 #ifndef HAS_UI
 #define HAS_UI
 #include "pos.h"
+#include "ctrl.h"
 
 enum MenuMain {
     ITM_COORDS,
     ITM_SYNC_STATUS,
-    ITM_DEBUG
+    ITM_DEBUG,
+    ITM_HOME
 };
 enum MenuDebug {
     ITM_TEST_BTNS,
@@ -17,7 +19,8 @@ COORDS,
 SYNC,
 MENU_MAIN,
 MENU_DEBUG,
-BTN_TST
+BTN_TST,
+HOMING
 // DEBUG
 };
 
@@ -80,7 +83,7 @@ namespace ui{
         public:
         Display(){;}
         void init();
-        void updateStates(HandheldController hhc, bool sync, bool home);
+        void updateStates(HandheldController hhc, bool sync, bool home, Display disp);
         void show(HandheldController hhc, pos::Position pos, bool homing);
         void showMenu();
         void showMenuDebug();

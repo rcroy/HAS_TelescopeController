@@ -72,15 +72,15 @@ namespace ctrl {
     /// @param targetPosition the target position
     /// @param ra the RA stepper
     /// @param dec the DEC stepper
-    void move(pos::FrameSet& currentLocation, pos::Position& targetPosition, io::Stepper& ra, io::Stepper& dec) {
-        ra.setFrequency(ra.getMaxFrequency());
-        dec.setFrequency(ra.getMaxFrequency());
-        double deltaRa = -wrap180(targetPosition.ra - currentLocation.getCoord(SKY, RA));
-        double deltaDec = -wrap180(targetPosition.dec - currentLocation.getCoord(SKY, DECL));
+    void move(pos::FrameSet& EncoderPosition, pos::Position& targetPosition, io::Stepper& ra, io::Stepper& dec) {
+        ra.setFrequency(ra.getMaxFrequency()/2);
+        dec.setFrequency(ra.getMaxFrequency()/2);
+        double deltaRa = -wrap180(targetPosition.ra - EncoderPosition.getCoord(SKY, RA));
+        double deltaDec = -wrap180(targetPosition.dec - EncoderPosition.getCoord(SKY, DECL));
         double trackingOffset = abs(deltaRa)*trackRateHz/double(ra.getFrequency());
         double deltaRaTotal = wrap180(deltaRa + trackingOffset);
         ra.runAngle(deltaRaTotal);
-        dec.runAngle(deltaDec);
+        dec.runAngle(-deltaDec);
     }
 
     void moveHome(io::Stepper& ra, io::Stepper& dec){

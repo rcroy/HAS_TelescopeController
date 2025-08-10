@@ -130,6 +130,7 @@ namespace ui{
     // HandheldDisplay
     ////////////////////////////////////////////////////////////////////////////
 void Display::init(){
+    // Create custom characters for the LCD
     byte upArrow[8] =   {0b00000, 0b00100, 0b01110, 0b10101,
                         0b00100, 0b00100, 0b00100, 0b00100};
     byte dnArrow[8] =   {0b00000, 0b00100, 0b00100, 0b00100,
@@ -140,7 +141,13 @@ void Display::init(){
                         0b00010, 0b00100, 0b00000, 0b00000};
     byte enArrow[8] =   {0b00000, 0b00001, 0b00001, 0b00101,
                         0b01001, 0b11111, 0b01000, 0b00100};
-
+    byte hours[8] =   {0b10000, 0b10000, 0b11100, 0b10100,
+                        0b10100, 0b00000, 0b00000, 0b00000};
+    byte minutes[8] =   {0b01000, 0b01000, 0b01000, 0b10000,
+                        0b00000, 0b00000, 0b00000, 0b00000};
+    byte seconds[8] =   {0b01010, 0b01010, 0b01010, 0b10100,
+                        0b00000, 0b00000, 0b00000, 0b00000};
+    
     menuIdx = 0;
     dbgMenuIdx = 0;
     prevMenuIdx = 0;
@@ -154,17 +161,21 @@ void Display::init(){
     lcd.begin(16, 2);  // initialize the lcd
     lcd.createChar(1, upArrow);
     lcd.createChar(2, dnArrow);
-    lcd.createChar(3, lfArrow);
+    lcd.createChar(3, seconds); // lfArrow
     lcd.createChar(4, rtArrow);
     lcd.createChar(5, enArrow);
+    lcd.createChar(6, hours);
+    lcd.createChar(7, minutes); 
     // lcd.setBacklight(255);
     lcd.clear();
     lcd.home();
 }
 
-void Display::updateStates(HandheldController hhc, bool sync, bool home){
+void Display::updateStates(HandheldController hhc, bool sync, bool home, Display disp){
     syncState = sync;
     homeState = home;
+    autoManState = disp.getAutoManState();
+
     if (hhc.getBtnMenuRise()){
         if (mode != MENU_MAIN){
             lastMode = mode;
@@ -176,11 +187,12 @@ void Display::updateStates(HandheldController hhc, bool sync, bool home){
     case MENU_MAIN:
         if (hhc.getBtnDecPlusRise()) menuIdx++;
         if (hhc.getBtnDecMinusRise()) menuIdx--;
-        if (menuIdx < 0) menuIdx = 2;
-        if (menuIdx > 2) menuIdx = 0;
+        if (menuIdx < 0) menuIdx = 3;
+        if (menuIdx > 4) menuIdx = 0;
         if (menuIdx == ITM_COORDS && hhc.getBtnRaPlusRise()) mode = COORDS;
         else if (menuIdx == ITM_SYNC_STATUS && hhc.getBtnRaPlusRise()) mode = SYNC;
         else if (menuIdx == ITM_DEBUG && hhc.getBtnRaPlusRise()) mode = MENU_DEBUG;
+        else if (menuIdx == ITM_HOME && autoManState == MANUAL && hhc.getBtnGoToRise()) mode = HOMING;
         break;
     case MENU_DEBUG:
         if (hhc.getBtnDecPlusRise()) dbgMenuIdx++;
@@ -247,6 +259,11 @@ void Display::updateStates(HandheldController hhc, bool sync, bool home){
             case BTN_TST:
                 if (prevMode != BTN_TST) lcd.clear();
                 testButtons(hhc);
+            case HOMING:
+                if (prevMode != HOMING) lcd.clear();
+                showSyncHome();
+                showAutoManState();
+                showTrackState(homing);
             break;
         }
         prevMenuIdx = menuIdx;
@@ -264,7 +281,7 @@ void Display::showSyncHome(){
 }
 
 void Display::showMenu(){
-    String options[3] = {"COORDS", "SYNC STATUS", "DEBUG"};
+    String options[4] = {"COORDS", "SYNC STATUS", "DEBUG", "HOME"};
     // lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("MENU:");
@@ -274,7 +291,7 @@ void Display::showMenu(){
     lcd.print(options[menuIdx] + " \04");
     lcd.setCursor(15,1);
     lcd.print("\02");
-    }
+}
 
 void Display::showMenuDebug(){
     String options[2] = {"TEST BUTTONS", "REBOOT"};
@@ -287,7 +304,7 @@ void Display::showMenuDebug(){
     lcd.print(options[dbgMenuIdx] + " \04");
     lcd.setCursor(15,1);
     lcd.print("\02");
-    }
+}
 
 
 void Display::showAutoManState(){
@@ -317,13 +334,12 @@ void Display::showTrackState(bool homing){
 
 void Display::showCoords(double ra, double dec){
     lcd.setCursor(0, 0);
-    lcd.print("RA: ");
+    lcd.print("R:");
     lcd.print(double2RaStr(ra));
     lcd.setCursor(0, 1);
-    lcd.print("DE:");
+    lcd.print("D:");
     lcd.print(double2DecStr(dec));
 }
-
 
 void Display::reboot(){
     wdt_disable();
@@ -393,10 +409,11 @@ void Display::testButtons(HandheldController hhc){
         hourStr = hourInt < 10 ? "0" + String(hourInt) : hourInt;
         minuteStr = minuteInt < 10 ? "0" + String(minuteInt) : minuteInt;
         secondStr = secondInt < 10 ? "0" + String(secondInt) : secondInt;
-        outStr = hourStr + ":" + minuteStr + ":" + secondStr;
+        outStr = hourStr + "\06" + minuteStr + "\07" + secondStr + "\03";
         return outStr;
     }
-
+//DE:00.00'00"
+    
 /// @brief Converts an angle in decimal degrees to the form "DD°MM'SS" for DEC.
 /// @param decDegrees   The angle in degrees.
 /// @return The string representation of the angle.
@@ -427,7 +444,7 @@ void Display::testButtons(HandheldController hhc){
         degStr = degInt < 10 ? "0" + String(degInt) : degInt;
         minuteStr = minuteInt < 10 ? "0" + String(minuteInt) : minuteInt;
         secondStr = secondInt < 10 ? "0" + String(secondInt) : secondInt;
-        outStr = signStr + degStr + char(223) + minuteStr + "'" + secondStr;
+        outStr = signStr + degStr + char(223) + minuteStr + "\07" + secondStr + "\03";
 
         return outStr;
     }

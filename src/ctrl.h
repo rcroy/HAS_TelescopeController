@@ -38,7 +38,7 @@ namespace ctrl {
     void horizonStop(pos::FrameSet& currentLocation, io::Stepper& ra, io::Stepper& dec, autoManualMode ctrlMode); // Check if the current location is below the horizon and stop the motors if it is
     
     // void calibrateHomePosition();
-    void move(pos::FrameSet& currentLocation, pos::Position& targetPosition, io::Stepper& ra, io::Stepper& dec);
+    void move(pos::FrameSet& EncoderPosition, pos::Position& targetPosition, io::Stepper& ra, io::Stepper& dec);
     void moveHome(io::Stepper& ra, io::Stepper& dec);
     void homeStop(io::Stepper& ra, io::Stepper& dec);
     bool getHoming();

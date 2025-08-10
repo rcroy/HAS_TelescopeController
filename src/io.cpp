@@ -25,7 +25,16 @@ namespace io{
         pos.ra = ra.getPulseCount()/ra.getPulsesPerDeg();
         pos.dec = -dec.getPulseCount()/dec.getPulsesPerDeg();
         return pos;
-}
+    }
+    
+    pos::Position getEncoderPositions(Encoder& RA_enc, Encoder& DEC_enc){
+        pos::Position posenc;
+        posenc.frame = MOTOR;
+        posenc.ra = RA_enc.getDegrees();
+        posenc.dec = -DEC_enc.getDegrees();
+        return posenc;
+    }
+    
 
     /// @brief set up the limit switches.
     void setupLimits(){
@@ -42,10 +51,14 @@ namespace io{
         if(digitalRead(DI_DEC_LIM_LO) && dec.getDirection() == DREVERSE){
             dec.stop();
             // g_decLimLo = false;
+            //Serial.println("DEC LOW LIM STOP");
+            //tone(PWM_BZR,NOTE_A6,BEEP_TIME_SHORT);
         }
         if(digitalRead(DI_DEC_LIM_HI) && dec.getDirection() == DFORWARD){
-            dec.stop();
+            // dec.stop();
             // g_decLimHi = false;
+            // Serial.println("DEC HI LIM STOP");
+            tone(PWM_BZR,NOTE_D6,BEEP_TIME_SHORT);
         }
 
     }

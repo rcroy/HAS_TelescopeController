@@ -8,19 +8,17 @@
 
 // #define <RXD0>       0
 // #define <TXD0>       1
-#define DI_DEC_LIM_HI   2
-#define DI_DEC_LIM_LO   3
-#define DO_DEC_STP_DIR  4
-#define PWM_DEC_STP_PUL 5
-#define PWM_RA_STP_PUL  6
-#define DO_RA_STP_DIR   7
+#define DI_RA_ENC_A     2 // INT[4]
+#define DI_DEC_ENC_A    3 // INT[5]
+#define DO_DEC_STP_DIR  4 // wire 302
+#define PWM_DEC_STP_PUL 5 // wire 303
+#define PWM_RA_STP_PUL  6 // wire 304
+#define DO_RA_STP_DIR   7 // wire 305
 
 #define DI_RA_LIM_IDX   8
 #define PWM_BZR         9
 // #define <RESERVED>   10
 // #define <TIMER1>     11 // If additional hardware Pulse Gen required, use this pin. Otherwise, use as PCINT for encoders.
-// #define DI_DEC_ENC_A    11
-// #define DI_DEC_ENC_B    12
 #define DO_LCD_E        11
 #define DO_LCD_RS       12
 // #define <LED>        13 // Arduino board LED.
@@ -30,10 +28,10 @@
 // #define TXD2_R_PI       16
 // #define RXD2_R_PI       17
 
-#define DO_LCD_D4       18 // Can be used as an INT intterupt, or for serial comms.
-#define DO_LCD_D5       19 // Can be used as an INT intterupt, or for serial comms.
-#define DO_LCD_D6       20
-#define DO_LCD_D7       21
+#define DO_LCD_D4       18 // INT[3] Can be used as an INT intterupt, or for serial comms.
+#define DO_LCD_D5       19 // INT[2] Can be used as an INT intterupt, or for serial comms.
+#define DO_LCD_D6       20 // INT[1]
+#define DO_LCD_D7       21 // INT[0]
 // #define TXD1_DEBUG      18 // Can be used as an INT intterupt, or for serial comms.
 // #define RXD1_DEBUG      19 // Can be used as an INT intterupt, or for serial comms.
 // #define SDA_LCD         20
@@ -55,13 +53,14 @@
 #define DO_MUX_ADDR_C  A9
 #define AI_POT_SPEED   A10
 
-#define DI_RA_ENC_A    A11
+#define DI_DEC_LIM_HI  A11 
 #define DI_RA_ENC_B    A12
+#define DI_DEC_LIM_LO  A13
+#define DI_DEC_ENC_B   A14
+
 // #define <PCINT21>   A13 // Can be used as a PCINT intterupt.
 // #define <PCINT22>   A14 // Can be used as a PCINT intterupt.
 // #define <PCINT23>   A15 // Can be used as a PCINT intterupt.
-
-
 
 
 // TEMPORARY - OLD CONTROLLER
@@ -76,6 +75,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 #define BEEP_TIME 125
+#define BEEP_TIME_SHORT 40
 
 
 #define NOTE_B0  31

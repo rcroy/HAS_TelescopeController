@@ -57,7 +57,7 @@ namespace io{
         if(digitalRead(DI_DEC_LIM_HI) && dec.getDirection() == DFORWARD){
             // dec.stop();
             // g_decLimHi = false;
-            //Serial.println("DEC HI LIM STOP");
+            // Serial.println("DEC HI LIM STOP");
             tone(PWM_BZR,NOTE_D6,BEEP_TIME_SHORT);
         }
 

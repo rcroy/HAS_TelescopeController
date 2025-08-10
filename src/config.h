@@ -10,10 +10,10 @@
 // #define <TXD0>       1
 #define DI_RA_ENC_A     2 // INT[4]
 #define DI_DEC_ENC_A    3 // INT[5]
-#define DO_DEC_STP_DIR  4
-#define PWM_DEC_STP_PUL 5
-#define PWM_RA_STP_PUL  6
-#define DO_RA_STP_DIR   7
+#define DO_DEC_STP_DIR  4 // wire 302
+#define PWM_DEC_STP_PUL 5 // wire 303
+#define PWM_RA_STP_PUL  6 // wire 304
+#define DO_RA_STP_DIR   7 // wire 305
 
 #define DI_RA_LIM_IDX   8
 #define PWM_BZR         9

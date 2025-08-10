@@ -348,12 +348,12 @@ void loop() {
         if(!hhc.getBtnDecPlus() && (dispMode == COORDS || dispMode == SYNC)){
             //  if (ctrl::getHoming()) decStp.run(FORWARD, decStp.getMaxFrequency());
             decStp.run(FORWARD, slewRateHzDEC); 
-            DECstepping = 1;       
+            DECstepping = 1;    
         }
         else if(!hhc.getBtnDecMinus() && (dispMode == COORDS || dispMode == SYNC)){
             //if (ctrl::getHoming()) decStp.run(REVERSE, decStp.getMaxFrequency());
             decStp.run(REVERSE, slewRateHzDEC);
-            DECstepping = 2;
+            DECstepping = 2; 
         }
         else if (!ctrl::getHoming()){
             decStp.stop();

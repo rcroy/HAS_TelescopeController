@@ -142,7 +142,7 @@ namespace io{
         setTarget(getPulseCount());
     }
 
-    void Stepper::startRamping(Direction dir) {
+    void Stepper::startRamping(direction dir) {
     rampingActive = true;
     rampingCounter = rampingCountMax;
     rampingDirection = dir;

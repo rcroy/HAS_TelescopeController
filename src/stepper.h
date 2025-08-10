@@ -40,7 +40,7 @@ namespace io{
         int rampingCountMax = 30;
         double maxSlewRateHz = 50000;
         double slewRateHz = 0;
-        Direction rampingDirection;
+        direction rampingDirection;
 
 
     public:
@@ -62,7 +62,7 @@ namespace io{
         void runPulses(){runPulses(0);}
         void stop();
         void init(int pinDIR, PulsePin pinPUL, uint32_t maxFrequency, bool enableLimits, stepperCalibration calParams);
-        void startRamping(Direction dir);
+        void startRamping(direction dir);
         void updateRamping();
         double getSlewRateHz() const;
 

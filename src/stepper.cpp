@@ -142,4 +142,24 @@ namespace io{
         setTarget(getPulseCount());
     }
 
+    void Stepper::startRamping(Direction dir) {
+    rampingActive = true;
+    rampingCounter = rampingCountMax;
+    rampingDirection = dir;
+}
+
+    void Stepper::updateRamping() {
+        if (rampingActive && rampingCounter >= 1) {
+            slewRateHz = (maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounter);
+            rampingCounter--;
+        } else if (rampingActive) {
+            rampingActive = false;
+            slewRateHz = maxSlewRateHz;
+        }
+    }
+
+    double Stepper::getSlewRateHz() const {
+        return slewRateHz;
+    }
+
 }

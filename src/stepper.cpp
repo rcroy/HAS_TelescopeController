@@ -131,7 +131,7 @@ namespace io{
     void Stepper::disable(){setEnabled(false);}
 
     /// @brief Enable the stepper motor by enabling the pulse generator.
-        void Stepper::enable(){setEnabled(true);}
+    void Stepper::enable(){setEnabled(true);}
 
     /// @brief Stop the stepper motor. This is achieved by setting the target
     /// step count to the current step count. This differs from the disable()

@@ -41,7 +41,8 @@ namespace io{
         double maxSlewRateHz = 50000;
         double slewRateHz = 0;
         direction rampingDirection;
-
+        double rampingMaxSlewRateHz = 50000;
+        int rampingSteps = 100; // Number of steps to ramp up/down
 
     public:
         PulseGenerator Pulse;
@@ -62,8 +63,8 @@ namespace io{
         void runPulses(){runPulses(0);}
         void stop();
         void init(int pinDIR, PulsePin pinPUL, uint32_t maxFrequency, bool enableLimits, stepperCalibration calParams);
-        void startRamping(direction dir);
-        void updateRamping();
+        void startRamping(direction dir, double maxSlewRateHz);
+        void updateRamping(double maxSlewRateHz);
         double getSlewRateHz() const;
 
     };

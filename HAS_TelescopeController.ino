@@ -77,8 +77,6 @@ void setup() {
     DEC_encPtr = &EncDEC; // see the Free functions for ISR above.
     attachInterrupt(digitalPinToInterrupt(DI_RA_ENC_A), RA_countPulsesISR, CHANGE);
     attachInterrupt(digitalPinToInterrupt(DI_DEC_ENC_A), DEC_countPulsesISR, CHANGE);
-
-    
     
 } 
  
@@ -223,27 +221,27 @@ void loop() {
 
         // DEC Plus ramping
         if(hhc.getBtnDecPlusRise()) {
-            decStp.startRamping(FORWARD);
+            decStp.startRamping(FORWARD, DEC_maxSlewRateHz);
         }
         decStp.updateRamping();
 
         // DEC Minus ramping
         if(hhc.getBtnDecMinusRise()) {
-            decStp.startRamping(REVERSE);
+            decStp.startRamping(REVERSE, DEC_maxSlewRateHz);
         }
         decStp.updateRamping();
 
         // RA Plus ramping
         if(hhc.getBtnRaPlusRise()) {
-            raStp.startRamping(FORWARD);
+            raStp.startRamping(FORWARD, RA_maxSlewRateHz);
         }
         raStp.updateRamping();
 
         // RA Minus ramping
         if(hhc.getBtnRaMinusRise()) {
-            raStp.startRamping(REVERSE);
+            raStp.startRamping(REVERSE, RA_maxSlewRateHz);
         }
-        raStp.updateRamping();
+        raStp.updateRamping(RA_maxSlewRateHz);
 
         // Use ramped slew rates
         double slewRateHzDEC = decStp.getSlewRateHz();

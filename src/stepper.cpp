@@ -142,19 +142,20 @@ namespace io{
         setTarget(getPulseCount());
     }
 
-    void Stepper::startRamping(direction dir) {
-    rampingActive = true;
-    rampingCounter = rampingCountMax;
-    rampingDirection = dir;
-}
+    void Stepper::startRamping(direction dir, double maxSlewRateHz) {
+        rampingActive = true;
+        rampingCounter = 0;
+        rampingDirection = dir;
+        rampingMaxSlewRateHz = maxSlewRateHz;
+    }
 
-    void Stepper::updateRamping() {
-        if (rampingActive && rampingCounter >= 1) {
-            slewRateHz = (maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounter);
-            rampingCounter--;
-        } else if (rampingActive) {
-            rampingActive = false;
-            slewRateHz = maxSlewRateHz;
+    void Stepper::updateRamping(double maxSlewRateHz) {
+        if (rampingActive) {
+            rampingMaxSlewRateHz = maxSlewRateHz;
+            // ramping logic, e.g.:
+            slewRateHz = rampingMaxSlewRateHz * (rampingCounter / rampingSteps);
+            if (rampingCounter < rampingSteps) rampingCounter++;
+            else rampingActive = false;
         }
     }
 

@@ -147,6 +147,9 @@ namespace io{
         rampingCounter = 0;
         rampingDirection = dir;
         rampingMaxSlewRateHz = maxSlewRateHz;
+        Serial.println("startRamping--");
+        Serial.println("rampingActive: " + String(rampingActive));
+        Serial.println("rampingMaxSlewRateHz: " + String(rampingMaxSlewRateHz));
     }
 
     void Stepper::updateRamping(double maxSlewRateHz) {
@@ -156,6 +159,8 @@ namespace io{
             slewRateHz = rampingMaxSlewRateHz * (rampingCounter / rampingSteps);
             if (rampingCounter < rampingSteps) rampingCounter++;
             else rampingActive = false;
+            Serial.println("rampingCounter: " + String(rampingCounter));
+            Serial.println("rampingActive:  " + String(rampingActive));
         }
     }
 

@@ -38,11 +38,11 @@ namespace io{
         bool rampingActive = false;
         int rampingCounter = 0;
         int rampingCountMax = 30;
-        double maxSlewRateHz = 50000;
+        double maxSlewRateHz = 40000;
         double slewRateHz = 0;
         direction rampingDirection;
-        double rampingMaxSlewRateHz = 50000;
-        int rampingSteps = 100; // Number of steps to ramp up/down
+        double rampingMaxSlewRateHz = 40000;
+        int rampingSteps = 20; // Number of steps to ramp up/down
 
     public:
         PulseGenerator Pulse;

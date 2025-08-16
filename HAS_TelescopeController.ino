@@ -17,7 +17,7 @@ String coordString;
 // bool g_isSlewing = false;
 bool initialSync = false;
 uint32_t maxFreqRa = 40000; // was 30000
-uint32_t maxFreqDec = 50000; 
+uint32_t maxFreqDec = 35000; 
 stepperCalibration raCal = {29918.22352,-0.4805,32558};
 stepperCalibration decCal = {99603.48705,-1.2116,74717};
 namespace pos{
@@ -88,7 +88,10 @@ void loop() {
     static unsigned long prevMillis = millis();
     static unsigned long prevMillis_100ms = millis();
     double RA_maxSlewRateHz = 40000;
-    double DEC_maxSlewRateHz = 50000;
+    double DEC_maxSlewRateHz = 35000;
+    // Use ramped slew rates
+    double slewRateHzDEC = decStp.getSlewRateHz();
+    double slewRateHzRA = raStp.getSlewRateHz();
 
     pos::SiderealTime::update(); // Update the sidereal time
     //pos::currentLocation.updateSiderealTime(pos::SiderealTime::getValue()); // Pass the sidereal time to the current location
@@ -109,7 +112,7 @@ void loop() {
     }
     
     // Task Scheduling for 100 ms intervals
-    if (millis() - prevMillis_100ms >= 100) {
+    if (millis() - prevMillis_100ms >= 10) {
         DisplayMode dispMode = disp.getDisplayMode();
 
         // SERIAL COMMS (With Stellarium or other clients)
@@ -209,10 +212,10 @@ void loop() {
                 DEC_maxSlewRateHz = 25000;
             } else if (hhc.getPotValue() < 768 ) {
                 RA_maxSlewRateHz = 30000;
-                DEC_maxSlewRateHz = 35000;
+                DEC_maxSlewRateHz = 30000;
             } else {
                 RA_maxSlewRateHz = 40000;
-                DEC_maxSlewRateHz = 50000;
+                DEC_maxSlewRateHz = 35000;
             }
             
             dispMode = disp.getDisplayMode();
@@ -249,9 +252,7 @@ void loop() {
         }
         raStp.updateRamping(RA_maxSlewRateHz);
 
-        // Use ramped slew rates
-        double slewRateHzDEC = decStp.getSlewRateHz();
-        double slewRateHzRA = raStp.getSlewRateHz();
+
         // ramping code ends
 
         // Manual move button press code
@@ -306,9 +307,6 @@ void loop() {
         }
         */
 
-
-
-/*    
     if(millis()-prevMillis>=500){
         //Serial.println("rampingCounterDECPlus: " + String(rampingCounterDECPlus)+", rampingActiveDECPlus: " + String(rampingActiveDECPlus)) ;
         //Serial.println("rampingActiveDECPlus: " + String(rampingActiveDECPlus));
@@ -316,15 +314,15 @@ void loop() {
         //Serial.println("rampingCounterDEC: " + String(rampingCounterDEC));
         //Serial.println("rampingActiveRA: " + String(rampingActiveRA));
         //Serial.println("rampingActiveDEC: " + String(rampingActiveDEC));
-        //Serial.println("slewRateHzRA: " + String(slewRateHzRA));
-        //Serial.println("slewRateHzDEC: " + String(slewRateHzDEC));
-        Serial.println("Dec Stepping: " + String(DECstepping));
-        Serial.println("DEC get Enab: " + String(decStp.getEnabled()));
-        Serial.println("----------------");
+        Serial.println("slewRateHzRA: " + String(slewRateHzRA));
+        Serial.println("slewRateHzDEC: " + String(slewRateHzDEC));
+        //Serial.println("Dec Stepping: " + String(DECstepping));
+        //Serial.println("DEC get Enab: " + String(decStp.getEnabled()));
+        //Serial.println("----------------");
         
         prevMillis = millis();
     }
-  */  
+ 
     
    /*
     // Messaging to the Serial Monitor

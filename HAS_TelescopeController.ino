@@ -17,7 +17,7 @@ String coordString;
 // bool g_isSlewing = false;
 bool initialSync = false;
 uint32_t maxFreqRa = 40000; // was 30000
-uint32_t maxFreqDec = 50000; 
+uint32_t maxFreqDec = 40000; 
 stepperCalibration raCal = {29918.22352,-0.4805,32558};
 stepperCalibration decCal = {99603.48705,-1.2116,74717};
 namespace pos{
@@ -228,7 +228,7 @@ void loop() {
 
     if(ctrl::ctrlMode == MANUAL){
         double RA_maxSlewRateHz = 40000;
-        double DEC_maxSlewRateHz = 50000;
+        double DEC_maxSlewRateHz = 40000;
 
         if (hhc.getPotValue() < 256 ) {
             RA_maxSlewRateHz = 6000;
@@ -241,7 +241,7 @@ void loop() {
             DEC_maxSlewRateHz = 35000;
         } else {
             RA_maxSlewRateHz = 40000;
-            DEC_maxSlewRateHz = 50000;
+            DEC_maxSlewRateHz = 40000;
         }
         
         DisplayMode dispMode = disp.getDisplayMode();
@@ -253,14 +253,16 @@ void loop() {
             disp.setDisplayMode(COORDS);
         } 
         /*
-         * Scope will not go home if the GOTO button is pressed.
+         * [DISABLED] Scope will not go home if the GOTO button is pressed.
         if(hhc.getBtnGoToRise()) {
             ctrl::moveHome(raStp,decStp);
             tone(PWM_BZR,NOTE_C6,BEEP_TIME);
         }
         */
 
-        // Set ramping rates, if required.
+        // **
+        // ** Set ramping rates, if required.
+
         // DEC Plus ramping
         if(hhc.getBtnDecPlusRise()) {
             rampingTriggerDECPlus = true;
@@ -346,14 +348,14 @@ void loop() {
         }
 
         if(!hhc.getBtnDecPlus() && (dispMode == COORDS || dispMode == SYNC)){
-            //  if (ctrl::getHoming()) decStp.run(FORWARD, decStp.getMaxFrequency());
-            decStp.run(FORWARD, slewRateHzDEC); 
-            DECstepping = 1;    
+            //  if (ctrl::getHoming()) decStp.run(REVERSE, decStp.getMaxFrequency());
+            decStp.run(REVERSE, slewRateHzDEC); 
+            DECstepping = 1; 
         }
         else if(!hhc.getBtnDecMinus() && (dispMode == COORDS || dispMode == SYNC)){
-            //if (ctrl::getHoming()) decStp.run(REVERSE, decStp.getMaxFrequency());
-            decStp.run(REVERSE, slewRateHzDEC);
-            DECstepping = 2; 
+            //if (ctrl::getHoming()) decStp.run(FORWARD, decStp.getMaxFrequency());
+            decStp.run(FORWARD, slewRateHzDEC);
+            DECstepping = 1; 
         }
         else if (!ctrl::getHoming()){
             decStp.stop();
@@ -363,7 +365,7 @@ void loop() {
         }
         // END Manual move button press code
     }
-/*    
+  /*   
     if(millis()-prevMillis>=500){
         //Serial.println("rampingCounterDECPlus: " + String(rampingCounterDECPlus)+", rampingActiveDECPlus: " + String(rampingActiveDECPlus)) ;
         //Serial.println("rampingActiveDECPlus: " + String(rampingActiveDECPlus));
@@ -372,14 +374,10 @@ void loop() {
         //Serial.println("rampingActiveRA: " + String(rampingActiveRA));
         //Serial.println("rampingActiveDEC: " + String(rampingActiveDEC));
         //Serial.println("slewRateHzRA: " + String(slewRateHzRA));
-        //Serial.println("slewRateHzDEC: " + String(slewRateHzDEC));
-        Serial.println("Dec Stepping: " + String(DECstepping));
-        Serial.println("DEC get Enab: " + String(decStp.getEnabled()));
         Serial.println("----------------");
-        
         prevMillis = millis();
     }
-  */  
+  */
     
    /*
     // Messaging to the Serial Monitor
@@ -417,7 +415,6 @@ void loop() {
         prevMillis = currentMillis;
     }
 */
-
 
     ctrl::homeStop(raStp,decStp);
     // // // // // // // // // SAFTEY LIMITS // // // // // // // // // // // //

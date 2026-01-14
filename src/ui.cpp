@@ -50,13 +50,13 @@ namespace ui{
         digitalWrite(addrB, HIGH);
         // digitalWrite(addrC, LOW);
         delayMicroseconds(debounceMicros);
-        btnDecPlus = digitalRead(pinSig);
+        btnDecMinus = digitalRead(pinSig); // Was Plus
         delayMicroseconds(debounceMicros);
         digitalWrite(addrA, HIGH);
         // digitalWrite(addrB, HIGH);
         // digitalWrite(addrC, LOW);
         delayMicroseconds(debounceMicros);
-        btnDecMinus = digitalRead(pinSig);
+        btnDecPlus = digitalRead(pinSig); // Was Minus
         delayMicroseconds(debounceMicros);
         digitalWrite(addrA, LOW);
         digitalWrite(addrB, LOW);
@@ -187,7 +187,7 @@ void Display::updateStates(HandheldController hhc, bool sync, bool home, Display
     case MENU_MAIN:
         if (hhc.getBtnDecPlusRise()) menuIdx++;
         if (hhc.getBtnDecMinusRise()) menuIdx--;
-        if (menuIdx < 0) menuIdx = 3;
+        if (menuIdx < 0) menuIdx = 4;
         if (menuIdx > 4) menuIdx = 0;
         if (menuIdx == ITM_COORDS && hhc.getBtnRaPlusRise()) mode = COORDS;
         else if (menuIdx == ITM_SYNC_STATUS && hhc.getBtnRaPlusRise()) mode = SYNC;
@@ -203,7 +203,6 @@ void Display::updateStates(HandheldController hhc, bool sync, bool home, Display
         // else if (menuIdx == ITM_HORZ_LIM && hhc.getBtnRaPlusRise()) mode = SYNC;
         else if (dbgMenuIdx == ITM_REBOOT && hhc.getBtnRaPlusRise()) reboot();
         break;
-
     case SYNC:
         if (hhc.getBtnAutoManRise()){
             autoManState = !autoManState;
@@ -231,7 +230,9 @@ void Display::updateStates(HandheldController hhc, bool sync, bool home, Display
     }
 }
 
+
     void Display::show(HandheldController hhc, pos::Position pos, bool homing){
+        static unsigned long prevMillis = millis();
         // static bool prevSyncState = false;
         static bool prevMenuState = false;
         static int8_t prevMenuIdx = 0;
@@ -239,17 +240,17 @@ void Display::updateStates(HandheldController hhc, bool sync, bool home, Display
             case MENU_MAIN:
                 if (prevMode != MENU_MAIN || prevMenuIdx != menuIdx) lcd.clear();
                 showMenu();
-            break;
+                break;
             case MENU_DEBUG:
                 if (prevMode != MENU_DEBUG || prevDbgMenuIdx != dbgMenuIdx) lcd.clear();
                 showMenuDebug();
-            break;
+                break;
             case COORDS:
                 if (prevMode != COORDS) lcd.clear();
                 showCoords(pos.ra, pos.dec);
                 showAutoManState();
                 showTrackState(homing);
-            break;
+                break;
             case SYNC:
                 if (prevMode != SYNC) lcd.clear();
                 showSyncHome();
@@ -259,12 +260,13 @@ void Display::updateStates(HandheldController hhc, bool sync, bool home, Display
             case BTN_TST:
                 if (prevMode != BTN_TST) lcd.clear();
                 testButtons(hhc);
+                break;
             case HOMING:
                 if (prevMode != HOMING) lcd.clear();
                 showSyncHome();
                 showAutoManState();
                 showTrackState(homing);
-            break;
+                break;
         }
         prevMenuIdx = menuIdx;
         prevDbgMenuIdx = dbgMenuIdx;
@@ -272,6 +274,7 @@ void Display::updateStates(HandheldController hhc, bool sync, bool home, Display
     }
 
 void Display::showSyncHome(){
+    static unsigned long prevMillis = millis();
     lcd.setCursor(0, 0);
     if(syncState) lcd.print("SYNCED    ");
     else lcd.print("NOT SYNCED");
@@ -348,9 +351,8 @@ void Display::reboot(){
 }
 /// @brief check functionality of buttons and potentiometer.
 void Display::testButtons(HandheldController hhc){
-    hhc.updateButtons();
+        hhc.updateButtons();
         lcd.home();
-        // lcd.clear();
         lcd.setCursor(0, 0);
         lcd.print("ButtonTest");
         lcd.setCursor(0, 1);

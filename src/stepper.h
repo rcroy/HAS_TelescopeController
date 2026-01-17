@@ -34,6 +34,15 @@ namespace io{
         void setDirection(direction dir);
         void setTarget(int32_t target){Pulse.setTarget(target);}
         void setEnabled(bool isEnabled);
+        // Ramping state for manual slew ramping
+        int rampingCountMax;
+        bool rampingActivePlus;
+        bool rampingTriggerPlus;
+        long rampingCounterPlus;
+        bool rampingActiveMinus;
+        bool rampingTriggerMinus;
+        long rampingCounterMinus;
+        double slewRateHz;
     public:
         PulseGenerator Pulse;
         int getDirection(){return dir;}
@@ -53,6 +62,10 @@ namespace io{
         void runPulses(){runPulses(0);}
         void stop();
         void init(int pinDIR, PulsePin pinPUL, uint32_t maxFrequency, bool enableLimits, stepperCalibration calParams);
+        // Ramping API
+        void onRampingButtonRisePlus();
+        void onRampingButtonRiseMinus();
+        double updateRamping(double maxSlewHz);
     };
 }
 #endif

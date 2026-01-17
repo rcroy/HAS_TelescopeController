@@ -26,6 +26,15 @@ namespace io{
         Pulse.init(pinPUL, maxFrequency);
         Pulse.setDirection(dir);
         Pulse.setRunMode(TARGET);
+        // initialize ramping defaults
+        rampingCountMax = 30;
+        rampingActivePlus = false;
+        rampingTriggerPlus = false;
+        rampingCounterPlus = 0;
+        rampingActiveMinus = false;
+        rampingTriggerMinus = false;
+        rampingCounterMinus = 0;
+        slewRateHz = 0.0;
     }
 
     /// @brief Set the frequency of the stepper motor. Cap at maxFrequency if input is greater.
@@ -140,6 +149,47 @@ namespace io{
     void Stepper::stop(){
         Pulse.setRunMode(TARGET);
         setTarget(getPulseCount());
+    }
+
+    // Ramping API implementations
+    void Stepper::onRampingButtonRisePlus(){
+        rampingTriggerPlus = true;
+    }
+
+    void Stepper::onRampingButtonRiseMinus(){
+        rampingTriggerMinus = true;
+    }
+
+    double Stepper::updateRamping(double maxSlewHz){
+        // Plus direction ramping
+        if(rampingTriggerPlus && !rampingActivePlus){
+            rampingActivePlus = true;
+            rampingTriggerPlus = false;
+            rampingCounterPlus = rampingCountMax;
+        }
+        if(rampingActivePlus && (rampingCounterPlus >= 1)){
+            slewRateHz = (maxSlewHz / rampingCountMax) * (rampingCountMax - rampingCounterPlus);
+            rampingCounterPlus = rampingCounterPlus - 1;
+        } else if(rampingActivePlus && (rampingCounterPlus < 1)){
+            rampingActivePlus = false;
+            slewRateHz = maxSlewHz;
+        }
+
+        // Minus direction ramping
+        if(rampingTriggerMinus && !rampingActiveMinus){
+            rampingActiveMinus = true;
+            rampingTriggerMinus = false;
+            rampingCounterMinus = rampingCountMax;
+        }
+        if(rampingActiveMinus && (rampingCounterMinus >= 1)){
+            slewRateHz = (maxSlewHz / rampingCountMax) * (rampingCountMax - rampingCounterMinus);
+            rampingCounterMinus = rampingCounterMinus - 1;
+        } else if(rampingActiveMinus && (rampingCounterMinus < 1)){
+            rampingActiveMinus = false;
+            slewRateHz = maxSlewHz;
+        }
+
+        return slewRateHz;
     }
 
 }

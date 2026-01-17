@@ -101,44 +101,7 @@ void loop() {
     int DECstepping = 0;
     static unsigned long prevMillis = millis();
 
-    /*
-       RAMPING CODE
-    */
-    static int rampingCountMax = 30;
-
-    // DEC Plus ramping variables
-    static bool rampingActiveDECPlus = false;
-    static bool rampingTriggerDECPlus = false;
-    static long int rampingCounterDECPlus = 0;
-    
-    static double slewRateHzDEC = 0;
-
-    // DEC Minus ramping variables
-    static bool rampingActiveDECMinus = false;
-    static bool rampingTriggerDECMinus = false;
-    static long int rampingCounterDECMinus = 0;
-    
-    // RA Plus ramping variables
-    static bool rampingActiveRAPlus = false;
-    static bool rampingTriggerRAPlus = false;
-    static long int rampingCounterRAPlus = 0;
-    
-    static double slewRateHzRA = 0;
-
-    // DEC Minus ramping variables
-    static bool rampingActiveRAMinus = false;
-    static bool rampingTriggerRAMinus = false;
-    static long int rampingCounterRAMinus = 0;
-
-    static bool rampingActive;
-
-    if (rampingActiveDECPlus || rampingActiveDECMinus || rampingActiveRAPlus || rampingActiveRAMinus) {
-        rampingActive = true;
-    } else {
-        rampingActive = false;
-    }
-
-    // RAMPING CODE ends
+    // Ramping handled by Stepper class (raStp / decStp) — triggers and updates occur in MANUAL block
 
     if(ctrl::trkMode == TRACK && ctrl::getScopeStatus(raStp, decStp) == IDLE){
             raStp.run(FORWARD, ctrl::trackRateHz);
@@ -260,76 +223,14 @@ void loop() {
         }
         */
 
-        // **
-        // ** Set ramping rates, if required.
+        // Trigger ramping on button-rise events and compute current slew rates
+        if(hhc.getBtnDecPlusRise()) decStp.onRampingButtonRisePlus();
+        if(hhc.getBtnDecMinusRise()) decStp.onRampingButtonRiseMinus();
+        if(hhc.getBtnRaPlusRise()) raStp.onRampingButtonRisePlus();
+        if(hhc.getBtnRaMinusRise()) raStp.onRampingButtonRiseMinus();
 
-        // DEC Plus ramping
-        if(hhc.getBtnDecPlusRise()) {
-            rampingTriggerDECPlus = true;
-        }
-        if(rampingTriggerDECPlus && !rampingActiveDECPlus) {
-            rampingActiveDECPlus = true;
-            rampingTriggerDECPlus = false;
-            rampingCounterDECPlus = rampingCountMax;
-        }
-        if(rampingActiveDECPlus && (rampingCounterDECPlus >= 1)) {
-            slewRateHzDEC = (DEC_maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterDECPlus);
-            rampingCounterDECPlus = rampingCounterDECPlus - 1;
-        } else if(rampingActiveDECPlus && (rampingCounterDECPlus < 1)) {
-            rampingActiveDECPlus = false;
-            slewRateHzDEC = DEC_maxSlewRateHz;
-        }
-
-        // DEC Minus ramping
-        if(hhc.getBtnDecMinusRise()) {
-            rampingTriggerDECMinus = true;
-        }
-        if(rampingTriggerDECMinus && !rampingActiveDECMinus) {
-            rampingActiveDECMinus = true;
-            rampingTriggerDECMinus = false;
-            rampingCounterDECMinus = rampingCountMax;
-        }
-        if(rampingActiveDECMinus && (rampingCounterDECMinus >= 1)) {
-            slewRateHzDEC = (DEC_maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterDECMinus);
-            rampingCounterDECMinus = rampingCounterDECMinus - 1;
-        } else if(rampingActiveDECMinus && (rampingCounterDECMinus < 1)) {
-            rampingActiveDECMinus = false;
-            slewRateHzDEC = DEC_maxSlewRateHz;
-        }
-
-       // RA Plus ramping
-        if(hhc.getBtnRaPlusRise()) {
-            rampingTriggerRAPlus = true;
-        }
-        if(rampingTriggerRAPlus && !rampingActiveRAPlus) {
-            rampingActiveRAPlus = true;
-            rampingTriggerRAPlus = false;
-            rampingCounterRAPlus = rampingCountMax;
-        }
-        if(rampingActiveRAPlus && (rampingCounterRAPlus >= 1)) {
-            slewRateHzRA = (RA_maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterRAPlus);
-            rampingCounterRAPlus = rampingCounterRAPlus - 1;
-        } else if(rampingActiveRAPlus) {
-            rampingActiveRAPlus = false;
-            slewRateHzRA = RA_maxSlewRateHz;
-        }
-        // RA Minus ramping
-        if(hhc.getBtnRaMinusRise()) {
-            rampingTriggerRAMinus = true;
-        }
-        if(rampingTriggerRAMinus && !rampingActiveRAMinus) {
-            rampingActiveRAMinus = true;
-            rampingTriggerRAMinus = false;
-            rampingCounterRAMinus = rampingCountMax;
-        }
-        if(rampingActiveRAMinus && (rampingCounterRAMinus >= 1)) {
-            slewRateHzRA = (RA_maxSlewRateHz / rampingCountMax) * (rampingCountMax - rampingCounterRAMinus);
-            rampingCounterRAMinus = rampingCounterRAMinus - 1;
-        } else if(rampingActiveRAMinus) {
-            rampingActiveRAMinus = false;
-            slewRateHzRA = RA_maxSlewRateHz;
-        }
-        // ramping code ends
+        double slewRateHzDEC = decStp.updateRamping(DEC_maxSlewRateHz);
+        double slewRateHzRA = raStp.updateRamping(RA_maxSlewRateHz);
 
         // Manual move button press code
         if(!hhc.getBtnRaPlus() && (dispMode == COORDS || dispMode == SYNC) ){

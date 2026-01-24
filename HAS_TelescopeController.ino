@@ -78,11 +78,8 @@ void setup() {
     attachInterrupt(digitalPinToInterrupt(DI_RA_ENC_A), RA_countPulsesISR, CHANGE);
     attachInterrupt(digitalPinToInterrupt(DI_DEC_ENC_A), DEC_countPulsesISR, CHANGE);
 
-    
-    
 } 
  
-
 /// @brief Main loop
 void loop() {
 
@@ -191,8 +188,6 @@ void loop() {
     if(ctrl::trkMode == TRACK && ctrl::getScopeStatus(raStp, decStp) == IDLE){
             raStp.run(FORWARD, ctrl::trackRateHz);
     }
-
-
 
     if(ctrl::ctrlMode == MANUAL){
         double RA_maxSlewRateHz = 40000;

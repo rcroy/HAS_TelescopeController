@@ -230,7 +230,6 @@ void Display::updateStates(HandheldController hhc, bool sync, bool home, Display
     }
 }
 
-
     void Display::show(HandheldController hhc, pos::Position pos, bool homing){
         static unsigned long prevMillis = millis();
         // static bool prevSyncState = false;
@@ -349,6 +348,7 @@ void Display::reboot(){
     wdt_enable(WDTO_15MS);
     while (1) {}
 }
+
 /// @brief check functionality of buttons and potentiometer.
 void Display::testButtons(HandheldController hhc){
         hhc.updateButtons();

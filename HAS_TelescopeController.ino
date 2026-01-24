@@ -78,11 +78,8 @@ void setup() {
     attachInterrupt(digitalPinToInterrupt(DI_RA_ENC_A), RA_countPulsesISR, CHANGE);
     attachInterrupt(digitalPinToInterrupt(DI_DEC_ENC_A), DEC_countPulsesISR, CHANGE);
 
-    
-    
 } 
  
-
 /// @brief Main loop
 void loop() {
 
@@ -100,93 +97,96 @@ void loop() {
     ctrl::trkMode = (disp.getTrackState()) ? TRACK : NO_TRACK;
     int DECstepping = 0;
     static unsigned long prevMillis = millis();
+    static unsigned long prevMillis_100ms = millis();
 
-    // Ramping handled by Stepper class (raStp / decStp) — triggers and updates occur in MANUAL block
+    // Task Scheduling for 100 ms intervals
+    if (millis() - prevMillis_100ms >= 100) {
+            if (comms::readStringUntilChar(buffer, '#')) {
+                currentCmd = comms::parseCommand(buffer);
+                switch (currentCmd) {
+                    case GET_RA:
+                        comms::sendReply(comms::double2RaStr(pos::EncoderPosition.getCoord(SKY, RA)));
+                        buffer = "";
+                        break;
+
+                    case GET_DEC:
+                        comms::sendReply(comms::double2DecStr(pos::EncoderPosition.getCoord(SKY, DECL)));
+                        buffer = "";
+                        break;
+
+                    case SYNC_POSITION:
+                        if (!initialSync){
+                            pos::SiderealTime::sync(pos::homePosition, pos::targetPosition);
+                            pos::EncoderPosition.initialiseSiderealTime(pos::SiderealTime::getValue());
+                            initialSync = true;
+                            disp.setDisplayMode(COORDS);
+                            // disp.setTrackState(true);
+                        }
+                        //pos::currentLocation.syncTo(pos::targetPosition);
+                        pos::EncoderPosition.syncTo(pos::targetPosition);
+                        //pos::EncoderPosition.updatePosition(pos::targetPosition);
+
+                        comms::sendReply("SYNCTO " + 
+                                        comms::double2RaStr(pos::EncoderPosition.getCoord(SKY, RA)) + " s" +
+                                        comms::double2DecStr(pos::EncoderPosition.getCoord(SKY, DECL)));
+                        buffer = "";
+                        break;
+
+                    case SLEW_TO_TARGET:
+                        switch (ctrl::ctrlMode){
+                            case AUTO:
+                                comms::sendReply(ctrl::checkTargetReachable(pos::targetPosition));
+                                ctrl::move(pos::EncoderPosition, pos::targetPosition,raStp, decStp);
+                                // g_isSlewing = true;
+                                break;
+                            case MANUAL:
+                                comms::sendReply("2: Telescope in Manual mode");
+                                break;
+                        }
+                        buffer = "";
+                        break;
+
+                    case STOP_SLEW:
+                        switch (ctrl::ctrlMode){
+                            case AUTO:
+                            ctrl::stopAllMovement(raStp, decStp);
+                            break;
+                            case MANUAL:
+                            break;
+                        }
+                        buffer = "";
+                        break;
+
+                    case SET_TARGET_RA:
+                        coordString = comms::extractCoord(buffer);
+                        pos::targetPosition.ra = comms::raStr2Double(coordString);
+                        comms::sendReply("1"); //add checking of of parsed string later
+                        buffer = "";
+                        Serial1.println("SET_TARGET_RA:");
+                        Serial1.println(pos::targetPosition.ra);
+                        break;
+
+                    case SET_TARGET_DEC:
+                        coordString = comms::extractCoord(buffer);
+                        pos::targetPosition.dec = comms::decStr2Double(coordString);
+                        comms::sendReply("1"); //add checking of of parsed string later
+                        buffer = "";
+                        Serial1.println("SET_TARGET_DEC:");
+                        Serial1.println(pos::targetPosition.dec);
+                        break;
+
+                    default:
+                        // Serial1.println("WARN: invalid command received");
+                        buffer = "";
+                        break;
+                }
+            }
+
+        prevMillis_100ms = millis();
+    }
 
     if(ctrl::trkMode == TRACK && ctrl::getScopeStatus(raStp, decStp) == IDLE){
             raStp.run(FORWARD, ctrl::trackRateHz);
-    }
-
-    if (comms::readStringUntilChar(buffer, '#')) {
-        currentCmd = comms::parseCommand(buffer);
-        switch (currentCmd) {
-            case GET_RA:
-                comms::sendReply(comms::double2RaStr(pos::EncoderPosition.getCoord(SKY, RA)));
-                buffer = "";
-                break;
-
-            case GET_DEC:
-                comms::sendReply(comms::double2DecStr(pos::EncoderPosition.getCoord(SKY, DECL)));
-                buffer = "";
-                break;
-
-            case SYNC_POSITION:
-                if (!initialSync){
-                    pos::SiderealTime::sync(pos::homePosition, pos::targetPosition);
-                    pos::EncoderPosition.initialiseSiderealTime(pos::SiderealTime::getValue());
-                    initialSync = true;
-                    disp.setDisplayMode(COORDS);
-                    // disp.setTrackState(true);
-                }
-                //pos::currentLocation.syncTo(pos::targetPosition);
-                pos::EncoderPosition.syncTo(pos::targetPosition);
-                //pos::EncoderPosition.updatePosition(pos::targetPosition);
-
-                comms::sendReply("SYNCTO " + 
-                                comms::double2RaStr(pos::EncoderPosition.getCoord(SKY, RA)) + " s" +
-                                comms::double2DecStr(pos::EncoderPosition.getCoord(SKY, DECL)));
-                buffer = "";
-                break;
-
-            case SLEW_TO_TARGET:
-                switch (ctrl::ctrlMode){
-                    case AUTO:
-                        comms::sendReply(ctrl::checkTargetReachable(pos::targetPosition));
-                        ctrl::move(pos::EncoderPosition, pos::targetPosition,raStp, decStp);
-                        // g_isSlewing = true;
-                        break;
-                    case MANUAL:
-                        comms::sendReply("2: Telescope in Manual mode");
-                        break;
-                }
-                buffer = "";
-                break;
-
-            case STOP_SLEW:
-                switch (ctrl::ctrlMode){
-                    case AUTO:
-                    ctrl::stopAllMovement(raStp, decStp);
-                    break;
-                    case MANUAL:
-                    break;
-                }
-                buffer = "";
-                break;
-
-            case SET_TARGET_RA:
-                coordString = comms::extractCoord(buffer);
-                pos::targetPosition.ra = comms::raStr2Double(coordString);
-                comms::sendReply("1"); //add checking of of parsed string later
-                buffer = "";
-                Serial1.println("SET_TARGET_RA:");
-                Serial1.println(pos::targetPosition.ra);
-                break;
-
-            case SET_TARGET_DEC:
-                coordString = comms::extractCoord(buffer);
-                pos::targetPosition.dec = comms::decStr2Double(coordString);
-                comms::sendReply("1"); //add checking of of parsed string later
-                buffer = "";
-                Serial1.println("SET_TARGET_DEC:");
-                Serial1.println(pos::targetPosition.dec);
-                break;
-
-            default:
-                // Serial1.println("WARN: invalid command received");
-                buffer = "";
-                break;
-        }
-    
     }
 
     if(ctrl::ctrlMode == MANUAL){
@@ -323,4 +323,4 @@ void loop() {
     io::limitStop(decStp); //Should be last function called in loop to ensure limit switches will stop motors
     // // // // // // // // // // // // // // // // // // // // // // // // // /
     wdt_reset();
-}
+} // end of loop()

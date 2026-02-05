@@ -34,8 +34,8 @@ namespace ctrl{
 io::Stepper raStp;
 io::Stepper decStp;
 
-io::Encoder EncRA(DI_RA_ENC_A, DI_RA_ENC_B, 4176); // Edges per 360 degrees
-io::Encoder EncDEC(DI_DEC_ENC_A, DI_DEC_ENC_B, 13107); // Edges per 360 degrees.
+io::Encoder EncRA(DI_RA_ENC_A, DI_RA_ENC_B, 4092); // Edges per 360 degrees
+io::Encoder EncDEC(DI_DEC_ENC_A, DI_DEC_ENC_B, 13140); // Edges per 360 degrees.
 // Declare a global pointers for the Encoder objects so that we can use them in the ISR.
 io::Encoder* RA_encPtr = nullptr;
 io::Encoder* DEC_encPtr = nullptr;
@@ -280,11 +280,12 @@ void loop() {
     }
   */
     
-   /*
+   
     // Messaging to the Serial Monitor
 
+    /*
     static unsigned long currentMillis;
-    static unsigned long prevMillis = 0;
+    //static unsigned long prevMillis = 0;
     currentMillis = millis();
     
     if(currentMillis - prevMillis >= 1000){
@@ -315,7 +316,7 @@ void loop() {
         Serial.print(message);
         prevMillis = currentMillis;
     }
-*/
+    */
 
     ctrl::homeStop(raStp,decStp);
     // // // // // // // // // SAFTEY LIMITS // // // // // // // // // // // //

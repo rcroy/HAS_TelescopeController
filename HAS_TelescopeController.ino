@@ -34,8 +34,8 @@ namespace ctrl{
 io::Stepper raStp;
 io::Stepper decStp;
 
-io::Encoder EncRA(DI_RA_ENC_A, DI_RA_ENC_B, 4092); // Edges per 360 degrees
-io::Encoder EncDEC(DI_DEC_ENC_A, DI_DEC_ENC_B, 13140); // Edges per 360 degrees.
+io::Encoder EncRA(DI_RA_ENC_A, DI_RA_ENC_B, 4070); // Edges per 360 degrees. Was 4092
+io::Encoder EncDEC(DI_DEC_ENC_A, DI_DEC_ENC_B, 13180); // Edges per 360 degrees.
 // Declare a global pointers for the Encoder objects so that we can use them in the ISR.
 io::Encoder* RA_encPtr = nullptr;
 io::Encoder* DEC_encPtr = nullptr;

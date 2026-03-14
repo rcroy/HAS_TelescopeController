@@ -16,8 +16,8 @@ command currentCmd;
 String coordString;
 // bool g_isSlewing = false;
 bool initialSync = false;
-uint32_t maxFreqRa = 40000; // was 30000
-uint32_t maxFreqDec = 40000; 
+uint32_t maxFreqRa = 50000; // was 30000
+uint32_t maxFreqDec = 50000; 
 stepperCalibration raCal = {29918.22352,-0.4805,32558};
 stepperCalibration decCal = {99603.48705,-1.2116,74717};
 namespace pos{
@@ -190,8 +190,8 @@ void loop() {
     }
 
     if(ctrl::ctrlMode == MANUAL){
-        double RA_maxSlewRateHz = 40000;
-        double DEC_maxSlewRateHz = 40000;
+        double RA_maxSlewRateHz = maxFreqRa;
+        double DEC_maxSlewRateHz = maxFreqDec;
 
         if (hhc.getPotValue() < 256 ) {
             RA_maxSlewRateHz = 6000;
@@ -200,11 +200,11 @@ void loop() {
             RA_maxSlewRateHz = 20000;
             DEC_maxSlewRateHz = 25000;
         } else if (hhc.getPotValue() < 768 ) {
-            RA_maxSlewRateHz = 30000;
+            RA_maxSlewRateHz = 35000;
             DEC_maxSlewRateHz = 35000;
         } else {
-            RA_maxSlewRateHz = 40000;
-            DEC_maxSlewRateHz = 40000;
+            RA_maxSlewRateHz = RA_maxSlewRateHz;
+            DEC_maxSlewRateHz = DEC_maxSlewRateHz;
         }
         
         DisplayMode dispMode = disp.getDisplayMode();

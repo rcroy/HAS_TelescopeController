@@ -8,6 +8,7 @@ bool g_decLimHi = false;
 /// @brief Triggered when the lower declination limit is reached.
 void decLimLoISR(){
     g_decLimLo = true;
+    Serial.println("DEC LOW LIM STOP");
 }
 
 /// @brief Triggered when the upper declination limit is reached.
@@ -52,12 +53,12 @@ namespace io{
             dec.stop();
             // g_decLimLo = false;
             //Serial.println("DEC LOW LIM STOP");
-            //tone(PWM_BZR,NOTE_A6,BEEP_TIME_SHORT);
+            tone(PWM_BZR,NOTE_A6,BEEP_TIME_SHORT);
         }
         if(digitalRead(DI_DEC_LIM_HI) && dec.getDirection() == DFORWARD){
-            // dec.stop();
+            dec.stop();
             // g_decLimHi = false;
-            // Serial.println("DEC HI LIM STOP");
+            //Serial.println("DEC HI LIM STOP");
             tone(PWM_BZR,NOTE_D6,BEEP_TIME_SHORT);
         }
 

@@ -27,7 +27,7 @@ namespace io{
         Pulse.setDirection(dir);
         Pulse.setRunMode(TARGET);
         // initialize ramping defaults
-        rampingCountMax = 30;
+        rampingCountMax = 60;
         rampingActivePlus = false;
         rampingTriggerPlus = false;
         rampingCounterPlus = 0;
